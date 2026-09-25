@@ -32,7 +32,7 @@ Mirror of GitHub issue JuniorPescador/daily-newspaper-ai#1.
 - [x] Claude curation + fallback
 - [x] Front-end
 - [x] Workflow + Pages
-- [ ] Tests + PR (Closes #1)
+- [x] Tests + PR (Closes #1)
 
 ## Related
 
