@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-export const DEFAULT_MODEL = 'claude-opus-5';
+export const DEFAULT_MODEL = 'claude-sonnet-5';
 export const CATEGORIES = ['novidades', 'mercado', 'achados'];
 
 // Models that accept the server-side `fallbacks: "default"` retry on a safety refusal.

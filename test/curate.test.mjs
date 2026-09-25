@@ -40,6 +40,15 @@ test('Opus 5 requests use structured output, adaptive thinking and server-side f
   assert.deepEqual(result.usage, { input_tokens: 1200, output_tokens: 800 });
 });
 
+test('the default model is Sonnet 5 on the regular endpoint', async () => {
+  const client = stubClient({ ...ok, model: 'claude-sonnet-5' });
+  const result = await curateWithClaude({ candidates, now, client });
+  assert.equal(client.calls[0].kind, 'ga');
+  assert.equal(client.calls[0].request.model, 'claude-sonnet-5');
+  assert.deepEqual(client.calls[0].request.thinking, { type: 'adaptive' });
+  assert.equal(result.model, 'claude-sonnet-5');
+});
+
 test('other models skip the fallback beta; Haiku skips thinking and effort', async () => {
   const sonnet = stubClient(ok);
   await curateWithClaude({ candidates, now, model: 'claude-sonnet-5', client: sonnet });

@@ -2,8 +2,8 @@ name: Edition
 
 on:
   schedule:
-    # 00:17, 06:17, 12:17 and 18:17 in São Paulo (UTC-3). Keep in sync with src/time.mjs.
-    - cron: '17 3,9,15,21 * * *'
+    # 06:17 and 18:17 in São Paulo (UTC-3). Keep in sync with src/time.mjs.
+    - cron: '17 9,21 * * *'
   workflow_dispatch:
   push:
     branches: [main]

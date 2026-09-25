@@ -1,13 +1,13 @@
 # Diário da IA
 
-Jornal de notícias sobre inteligência artificial, com novidades, mercado e achados. Toda notícia leva o link da fonte original. Uma nova edição sai a cada 6 horas.
+Jornal de notícias sobre inteligência artificial, com novidades, mercado e achados. Toda notícia leva o link da fonte original. Sai uma edição de manhã e outra à noite.
 
 ## Como funciona
 
 1. **Coleta.** `sources.json` lista cerca de 30 fontes: laboratórios, veículos de tecnologia, newsletters, Hacker News, Hugging Face Papers e veículos brasileiros. Entram só itens das últimas 36 h (72 h para papers). Anúncios e duplicatas saem nessa etapa, e as fontes de assunto geral passam por um filtro de IA.
 2. **Curadoria.** O Claude recebe a lista numerada e monta a edição com 14 a 22 notícias. Ele junta coberturas do mesmo fato, escreve título, resumo e "por que importa" em PT-BR, separa em **Novidades / Mercado / Achados** e aponta as tendências. Os links vêm sempre dos feeds: o modelo só escolhe IDs, e IDs inventados são descartados.
 3. **Plano B.** Sem `ANTHROPIC_API_KEY`, ou se a API falhar, sai uma edição automática: os títulos e trechos originais, com a categoria definida por palavras-chave.
-4. **Publicação.** O GitHub Actions roda às 00:17, 06:17, 12:17 e 18:17 (horário de Brasília). Ele salva a edição no branch `data` e publica o site no GitHub Pages. O arquivo guarda cerca de 30 dias de edições.
+4. **Publicação.** O GitHub Actions roda às 06:17 e às 18:17 (horário de Brasília). Ele salva a edição no branch `data` e publica o site no GitHub Pages. O arquivo guarda cerca de 60 dias de edições.
 
 A página é estática, sem etapa de build: `site/index.html`, `site/styles.css` e `site/app.js`, que lê `data/latest.json`.
 
@@ -30,20 +30,20 @@ Para usar a IA localmente, crie um `.env` a partir do `.env.example`.
 | O quê | Onde | Para quê |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | Settings → Secrets and variables → Actions → Secrets | Liga a curadoria por IA. Sem ela, sai a edição automática. |
-| `CLAUDE_MODEL` (opcional) | Settings → Secrets and variables → Actions → Variables | Troca o modelo. O padrão é `claude-opus-5`. |
+| `CLAUDE_MODEL` (opcional) | Settings → Secrets and variables → Actions → Variables | Troca o modelo. O padrão é `claude-sonnet-5`. |
 | Pages | Settings → Pages → Source: **GitHub Actions** | Publica o site. |
 
 Para gerar uma edição fora do horário, use **Actions → Edition → Run workflow**.
 
 ## Custo estimado da IA
 
-Cada edição envia cerca de 11 mil tokens (as ~100 notícias candidatas) e recebe de 5 a 9 mil. São 4 edições por dia:
+Cada edição envia cerca de 11 mil tokens (as ~100 notícias candidatas) e recebe de 5 a 9 mil. São 2 edições por dia:
 
 | Modelo | Por edição | Por mês |
 |---|---|---|
-| `claude-opus-5` (padrão) | ~US$ 0,25 | ~US$ 30 |
-| `claude-sonnet-5` | ~US$ 0,10 | ~US$ 12 |
-| `claude-haiku-4-5` | ~US$ 0,04 | ~US$ 5 |
+| `claude-sonnet-5` (padrão) | ~US$ 0,10 | ~US$ 5–7 |
+| `claude-opus-5` | ~US$ 0,25 | ~US$ 12–17 |
+| `claude-haiku-4-5` | ~US$ 0,04 | ~US$ 2 |
 
 O consumo real de cada edição fica em `usage`, dentro do JSON da edição.
 
