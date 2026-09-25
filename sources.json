@@ -1,0 +1,35 @@
+[
+  { "id": "openai", "name": "OpenAI", "url": "https://openai.com/news/rss.xml", "kind": "lab", "weight": 3, "max": 8 },
+  { "id": "deepmind", "name": "Google DeepMind", "url": "https://deepmind.google/blog/rss.xml", "kind": "lab", "weight": 3, "max": 6 },
+  { "id": "google-ai", "name": "Google AI", "url": "https://blog.google/technology/ai/rss/", "kind": "lab", "weight": 3, "max": 6 },
+  { "id": "google-research", "name": "Google Research", "url": "https://research.google/blog/rss/", "kind": "research", "weight": 2, "max": 5 },
+  { "id": "huggingface", "name": "Hugging Face", "url": "https://huggingface.co/blog/feed.xml", "kind": "lab", "weight": 2, "max": 6 },
+  { "id": "nvidia", "name": "NVIDIA", "url": "https://blogs.nvidia.com/feed/", "kind": "lab", "weight": 2, "max": 6, "filter": "ai" },
+  { "id": "aws-ml", "name": "AWS Machine Learning", "url": "https://aws.amazon.com/blogs/machine-learning/feed/", "kind": "lab", "weight": 1, "max": 4 },
+
+  { "id": "techcrunch", "name": "TechCrunch", "url": "https://techcrunch.com/category/artificial-intelligence/feed/", "kind": "news", "weight": 2, "max": 12 },
+  { "id": "the-verge", "name": "The Verge", "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", "kind": "news", "weight": 2, "max": 10 },
+  { "id": "mit-tr", "name": "MIT Technology Review", "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed", "kind": "news", "weight": 2, "max": 8 },
+  { "id": "ars", "name": "Ars Technica", "url": "https://arstechnica.com/ai/feed/", "kind": "news", "weight": 2, "max": 8 },
+  { "id": "wired", "name": "WIRED", "url": "https://www.wired.com/feed/tag/ai/latest/rss", "kind": "news", "weight": 2, "max": 8 },
+  { "id": "the-decoder", "name": "The Decoder", "url": "https://the-decoder.com/feed/", "kind": "news", "weight": 2, "max": 10 },
+  { "id": "404media", "name": "404 Media", "url": "https://www.404media.co/rss/", "kind": "news", "weight": 1, "max": 5, "filter": "ai" },
+  { "id": "the-information", "name": "The Information", "url": "https://www.theinformation.com/feed", "kind": "news", "weight": 2, "max": 8, "filter": "ai" },
+  { "id": "cnbc-tech", "name": "CNBC", "url": "https://www.cnbc.com/id/19854910/device/rss/rss.html", "kind": "news", "weight": 2, "max": 8, "filter": "ai" },
+  { "id": "crunchbase", "name": "Crunchbase News", "url": "https://news.crunchbase.com/sections/ai/feed/", "kind": "market", "weight": 2, "max": 8 },
+
+  { "id": "simon-willison", "name": "Simon Willison", "url": "https://simonwillison.net/atom/everything/", "kind": "analysis", "weight": 2, "max": 6 },
+  { "id": "import-ai", "name": "Import AI", "url": "https://importai.substack.com/feed", "kind": "analysis", "weight": 2, "max": 3 },
+  { "id": "latent-space", "name": "Latent Space", "url": "https://www.latent.space/feed", "kind": "analysis", "weight": 2, "max": 3 },
+  { "id": "interconnects", "name": "Interconnects", "url": "https://www.interconnects.ai/feed", "kind": "analysis", "weight": 2, "max": 3 },
+  { "id": "semianalysis", "name": "SemiAnalysis", "url": "https://www.semianalysis.com/feed", "kind": "analysis", "weight": 2, "max": 3 },
+  { "id": "hacker-news", "name": "Hacker News", "url": "https://hnrss.org/newest?points=100&q=AI+OR+LLM+OR+OpenAI+OR+Anthropic+OR+Gemini+OR+Claude", "kind": "community", "weight": 1, "max": 10 },
+
+  { "id": "hf-papers", "name": "Hugging Face Papers", "url": "https://huggingface.co/api/daily_papers", "type": "hf-papers", "kind": "research", "weight": 2, "max": 10, "windowHours": 72 },
+
+  { "id": "tecnoblog", "name": "Tecnoblog", "url": "https://tecnoblog.net/feed/", "kind": "news", "lang": "pt", "weight": 1, "max": 6, "filter": "ai" },
+  { "id": "canaltech", "name": "Canaltech", "url": "https://canaltech.com.br/rss/", "kind": "news", "lang": "pt", "weight": 1, "max": 6, "filter": "ai" },
+  { "id": "infomoney", "name": "InfoMoney", "url": "https://www.infomoney.com.br/feed/", "kind": "market", "lang": "pt", "weight": 1, "max": 5, "filter": "ai" },
+  { "id": "startups-br", "name": "Startups.com.br", "url": "https://startups.com.br/feed/", "kind": "market", "lang": "pt", "weight": 1, "max": 5, "filter": "ai" },
+  { "id": "neofeed", "name": "NeoFeed", "url": "https://neofeed.com.br/feed/", "kind": "market", "lang": "pt", "weight": 1, "max": 5, "filter": "ai" }
+]

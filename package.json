@@ -1,0 +1,21 @@
+{
+  "name": "daily-newspaper-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Daily AI newspaper: news, market and research findings with sources, refreshed every 6 hours.",
+  "type": "module",
+  "packageManager": "pnpm@11.10.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "edition": "node scripts/edition.mjs",
+    "dev": "node scripts/serve.mjs",
+    "build:site": "node scripts/build-site.mjs",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "fast-xml-parser": "^5.11.1"
+  }
+}

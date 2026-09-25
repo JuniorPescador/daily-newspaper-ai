@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Diário da IA</title>
+    <meta name="description" content="Novidades, mercado e achados de inteligência artificial, com as fontes. Atualizado a cada 6 horas." />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f5f3ee" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0d0c" media="(prefers-color-scheme: dark)" />
+    <meta property="og:title" content="Diário da IA" />
+    <meta property="og:description" content="Novidades, mercado e achados de IA, com as fontes. Atualizado a cada 6 horas." />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <div class="progress" aria-hidden="true"><span></span></div>
+
+    <header class="topbar">
+      <div class="wrap topbar__inner">
+        <a class="brand" href="./" aria-label="Diário da IA, edição mais recente">Diário da IA<span class="dot">.</span></a>
+        <p class="status" id="status"><span class="status__pulse" aria-hidden="true"></span><span id="status-text">Carregando edição…</span></p>
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="Alternar tema claro e escuro">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" /></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 14.6A8.5 8.5 0 0 1 9.4 3.8a8.5 8.5 0 1 0 10.8 10.8Z" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="masthead" aria-labelledby="masthead-title">
+        <div class="masthead__meta">
+          <span id="today">&nbsp;</span>
+          <span id="edition-label">&nbsp;</span>
+          <span id="edition-number">&nbsp;</span>
+        </div>
+        <h1 class="masthead__title" id="masthead-title">
+          <span class="word" style="--w: 0">Diário</span>
+          <em class="word" style="--w: 1">da</em>
+          <span class="word" style="--w: 2">IA<span class="dot">.</span></span>
+        </h1>
+        <p class="masthead__tagline">Novidades, mercado e achados de inteligência artificial, sempre com a fonte.</p>
+      </section>
+
+      <p class="archive-banner" id="archive-banner" hidden>
+        <span id="archive-banner-text"></span>
+        <a href="./">Ver a edição mais recente <span aria-hidden="true">→</span></a>
+      </p>
+
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker__track" id="ticker"></div>
+      </div>
+
+      <p class="editorial" id="editorial" hidden></p>
+
+      <section class="front" aria-label="Destaques">
+        <article class="lead" id="lead" aria-busy="true">
+          <div class="skeleton skeleton--label"></div>
+          <div class="skeleton skeleton--headline"></div>
+          <div class="skeleton skeleton--headline short"></div>
+          <div class="skeleton skeleton--text"></div>
+          <div class="skeleton skeleton--text"></div>
+        </article>
+        <aside class="trends" aria-labelledby="trends-title">
+          <h2 class="section-label" id="trends-title">Tendências</h2>
+          <ol class="trends__list" id="trends"></ol>
+        </aside>
+      </section>
+
+      <div class="controls" id="controls">
+        <div class="filters" role="group" aria-label="Filtrar por categoria">
+          <span class="filters__indicator" aria-hidden="true"></span>
+          <button type="button" class="filter" data-filter="all" aria-pressed="true">Tudo <sup data-count="all"></sup></button>
+          <button type="button" class="filter" data-filter="novidades" aria-pressed="false">Novidades <sup data-count="novidades"></sup></button>
+          <button type="button" class="filter" data-filter="mercado" aria-pressed="false">Mercado <sup data-count="mercado"></sup></button>
+          <button type="button" class="filter" data-filter="achados" aria-pressed="false">Achados <sup data-count="achados"></sup></button>
+        </div>
+        <label class="only-new">
+          <input type="checkbox" id="only-new" />
+          <span class="switch" aria-hidden="true"></span>
+          Só as novas <sup id="new-count"></sup>
+        </label>
+      </div>
+
+      <section class="grid" id="stories" aria-live="polite">
+        <div class="skeleton-card"><div class="skeleton skeleton--label"></div><div class="skeleton skeleton--title"></div><div class="skeleton skeleton--text"></div><div class="skeleton skeleton--text short"></div></div>
+        <div class="skeleton-card"><div class="skeleton skeleton--label"></div><div class="skeleton skeleton--title"></div><div class="skeleton skeleton--text"></div><div class="skeleton skeleton--text short"></div></div>
+        <div class="skeleton-card"><div class="skeleton skeleton--label"></div><div class="skeleton skeleton--title"></div><div class="skeleton skeleton--text"></div><div class="skeleton skeleton--text short"></div></div>
+      </section>
+      <p class="empty" id="empty" hidden>Nenhuma notícia nesse filtro.</p>
+
+      <section class="archive" aria-labelledby="archive-title">
+        <h2 class="section-label" id="archive-title">Edições anteriores</h2>
+        <ol class="archive__list" id="archive"></ol>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer__inner">
+        <p class="footer__about" id="about">
+          Atualizado a cada 6 horas a partir de feeds públicos de laboratórios, veículos de tecnologia, newsletters e pesquisa.
+        </p>
+        <p class="footer__sources" id="footer-sources"></p>
+        <p class="footer__fine">
+          Resumos gerados por IA podem conter erros. Confira sempre a fonte original.
+          <a href="https://github.com/JuniorPescador/daily-newspaper-ai" target="_blank" rel="noopener noreferrer">Código no GitHub</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

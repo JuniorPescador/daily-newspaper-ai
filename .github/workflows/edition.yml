@@ -1,0 +1,86 @@
+name: Edition
+
+on:
+  schedule:
+    # 00:17, 06:17, 12:17 and 18:17 in São Paulo (UTC-3). Keep in sync with src/time.mjs.
+    - cron: '17 3,9,15,21 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: edition
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Edition history lives in the `data` branch so bot commits never touch main.
+      - name: Check out edition history
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads origin data > /dev/null; then
+            git clone --quiet --depth 1 --branch data "$remote" data
+          else
+            git init --quiet -b data data
+            git -C data remote add origin "$remote"
+          fi
+
+      - name: Generate edition
+        if: github.event_name != 'push'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
+        run: pnpm edition
+
+      - name: Save edition history
+        if: github.event_name != 'push'
+        working-directory: data
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No changes to save.'
+          else
+            git commit --quiet -m "edition: $(jq -r .id latest.json)"
+            git push --quiet origin data
+          fi
+
+      - run: pnpm build:site
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
