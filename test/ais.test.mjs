@@ -34,4 +34,13 @@ test('summarizeAis counts stories per AI, most mentioned first', () => {
   );
   assert.equal(summary[1].label, 'Claude');
   assert.equal(summary[1].maker, 'Anthropic');
+  assert.equal(summary[1].logo, 'claude');
+});
+
+test('every AI with a logo has a vendored SVG', async () => {
+  const { access } = await import('node:fs/promises');
+  const { AIS } = await import('../src/ais.mjs');
+  for (const ai of AIS.filter((entry) => entry.logo)) {
+    await access(new URL(`../site/logos/${ai.logo}.svg`, import.meta.url));
+  }
 });

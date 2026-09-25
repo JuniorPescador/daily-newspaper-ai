@@ -152,6 +152,18 @@ function sourcesList(story) {
   );
 }
 
+/** Brand logo as a CSS mask (tinted via currentColor); falls back to the initial or a dot. */
+function aiIcon(ai, className, fallback = 'letter') {
+  if (!ai.logo) {
+    return el('span', { class: className, 'aria-hidden': 'true', text: fallback === 'letter' ? ai.label.charAt(0) : null });
+  }
+  const icon = el('span', { class: `${className} logo-mask`, 'aria-hidden': 'true' });
+  const url = `url("logos/${encodeURIComponent(ai.logo)}.svg")`;
+  icon.style.webkitMaskImage = url;
+  icon.style.maskImage = url;
+  return icon;
+}
+
 function aiBadges(story) {
   const known = (story.ais ?? []).filter((id) => aiMeta.has(id));
   if (known.length === 0) return null;
@@ -160,7 +172,10 @@ function aiBadges(story) {
     { class: 'ai-badges' },
     known.map((id) => {
       const ai = aiMeta.get(id);
-      const badge = el('button', { type: 'button', class: 'ai-badge', 'data-ai': id, 'aria-pressed': 'false', 'aria-label': `Filtrar por ${ai.label}`, text: ai.label });
+      const badge = el('button', { type: 'button', class: 'ai-badge', 'data-ai': id, 'aria-pressed': 'false', 'aria-label': `Filtrar por ${ai.label}` }, [
+        aiIcon(ai, 'ai-badge__icon', 'dot'),
+        ai.label,
+      ]);
       badge.style.setProperty('--ai', ai.color);
       return badge;
     }),
@@ -322,7 +337,17 @@ function syncAiUi() {
   pill.hidden = !ai;
   if (ai) {
     pill.style.setProperty('--ai', ai.color);
+    pill.querySelector('.active-ai__icon').replaceWith(aiIcon(ai, 'active-ai__icon', 'dot'));
     $('#active-ai-label').textContent = ai.label;
+  }
+
+  // The whole page takes the selected AI's color (see :root[data-ai] in styles.css).
+  const root = document.documentElement;
+  if (ai) {
+    root.style.setProperty('--ai-color', ai.color);
+    root.dataset.ai = ai.id;
+  } else {
+    delete root.dataset.ai;
   }
   const url = new URL(window.location.href);
   if (ai) url.searchParams.set('ia', ai.id);
@@ -345,7 +370,7 @@ function renderAiFilter(ais) {
   $('#ai-cards').replaceChildren(
     ...ais.map((ai) => {
       const card = el('button', { type: 'button', class: 'ai-card', 'data-ai': ai.id, 'aria-pressed': 'false', title: `Ver só notícias sobre ${ai.label}` }, [
-        el('span', { class: 'ai-card__mark', 'aria-hidden': 'true', text: ai.label.charAt(0) }),
+        el('span', { class: 'ai-card__mark', 'aria-hidden': 'true' }, aiIcon(ai, 'ai-card__logo')),
         el('span', { class: 'ai-card__text' }, [el('span', { class: 'ai-card__name', text: ai.label }), el('span', { class: 'ai-card__maker', text: ai.maker })]),
         el('span', { class: 'ai-card__count', 'aria-label': `${ai.count} notícias`, text: ai.count }),
       ]);
