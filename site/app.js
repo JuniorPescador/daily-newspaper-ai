@@ -5,7 +5,8 @@ const ARCHIVE_SHOWN = 12;
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const $ = (selector) => document.querySelector(selector);
-const state = { filter: 'all', onlyNew: false };
+const state = { filter: 'all', onlyNew: false, ai: null };
+let aiMeta = new Map();
 
 document.documentElement.classList.add('js');
 
@@ -151,6 +152,36 @@ function sourcesList(story) {
   );
 }
 
+/** Brand logo as a CSS mask (tinted via currentColor); falls back to the initial or a dot. */
+function aiIcon(ai, className, fallback = 'letter') {
+  if (!ai.logo) {
+    return el('span', { class: className, 'aria-hidden': 'true', text: fallback === 'letter' ? ai.label.charAt(0) : null });
+  }
+  const icon = el('span', { class: `${className} logo-mask`, 'aria-hidden': 'true' });
+  const url = `url("logos/${encodeURIComponent(ai.logo)}.svg")`;
+  icon.style.webkitMaskImage = url;
+  icon.style.maskImage = url;
+  return icon;
+}
+
+function aiBadges(story) {
+  const known = (story.ais ?? []).filter((id) => aiMeta.has(id));
+  if (known.length === 0) return null;
+  return el(
+    'div',
+    { class: 'ai-badges' },
+    known.map((id) => {
+      const ai = aiMeta.get(id);
+      const badge = el('button', { type: 'button', class: 'ai-badge', 'data-ai': id, 'aria-pressed': 'false', 'aria-label': `Filtrar por ${ai.label}` }, [
+        aiIcon(ai, 'ai-badge__icon', 'dot'),
+        ai.label,
+      ]);
+      badge.style.setProperty('--ai', ai.color);
+      return badge;
+    }),
+  );
+}
+
 function storyNode(story, { index, lead = false, showNew }) {
   const href = safeHref(story.sources[0]?.url);
   const headline = href ? el('a', { href, target: '_blank', rel: 'noopener noreferrer', text: story.title }) : story.title;
@@ -168,10 +199,22 @@ function storyNode(story, { index, lead = false, showNew }) {
     el(lead ? 'h2' : 'h3', { class: lead ? 'lead__title' : 'story__title' }, headline),
     story.summary ? el('p', { class: lead ? 'lead__summary' : 'story__summary', text: story.summary }) : null,
     why,
+    aiBadges(story),
     sourcesList(story),
   ];
   if (lead) return children;
-  const node = el('article', { class: 'story', 'data-category': story.category, 'data-new': String(Boolean(story.isNew)) }, children);
+  const node = el(
+    'article',
+    {
+      class: 'story',
+      'data-category': story.category,
+      'data-new': String(Boolean(story.isNew)),
+      'data-ais': (story.ais ?? []).join(' '),
+      // The lead is already featured above; it joins the grid only while a filter is on.
+      'data-lead': index === 1 ? 'true' : null,
+    },
+    children,
+  );
   node.style.viewTransitionName = `story-${story.id}`;
   return node;
 }
@@ -236,29 +279,118 @@ function moveIndicator() {
   indicator.style.setProperty('--width', `${active.offsetWidth}px`);
 }
 
+function matches(node, { category = state.filter, onlyNew = state.onlyNew, ai = state.ai } = {}) {
+  return (
+    (category === 'all' || node.dataset.category === category) &&
+    (!onlyNew || node.dataset.new === 'true') &&
+    (!ai || node.dataset.ais.split(' ').includes(ai))
+  );
+}
+
+function filtersActive() {
+  return state.filter !== 'all' || state.onlyNew || Boolean(state.ai);
+}
+
+/** Counts on each control reflect the other active filters. */
+function updateCounts() {
+  const nodes = [...$('#stories').children];
+  for (const sup of document.querySelectorAll('sup[data-count]')) {
+    sup.textContent = nodes.filter((node) => matches(node, { category: sup.dataset.count })).length;
+  }
+  $('#new-count').textContent = nodes.filter((node) => matches(node, { onlyNew: true })).length;
+}
+
+/** Applies the current filters; resolves once any transition has finished. */
 function applyFilters(animate) {
   const grid = $('#stories');
   const update = () => {
+    const active = filtersActive();
     let visible = 0;
     for (const node of grid.children) {
-      const show = (state.filter === 'all' || node.dataset.category === state.filter) && (!state.onlyNew || node.dataset.new === 'true');
+      const show = matches(node) && (active || node.dataset.lead !== 'true');
       node.hidden = !show;
       if (show) visible += 1;
     }
     $('#empty').hidden = visible > 0;
+    updateCounts();
   };
-  if (animate && document.startViewTransition && !reducedMotion.matches) document.startViewTransition(update);
-  else update();
+  if (animate && document.startViewTransition && !reducedMotion.matches) {
+    return document.startViewTransition(update).finished.catch(() => {});
+  }
+  update();
+  return Promise.resolve();
 }
 
-function setupControls(stories, showNew) {
-  const counts = { all: stories.length, novidades: 0, mercado: 0, achados: 0 };
-  for (const story of stories) counts[story.category] = (counts[story.category] ?? 0) + 1;
-  for (const [key, count] of Object.entries(counts)) {
-    const sup = document.querySelector(`sup[data-count="${key}"]`);
-    if (sup) sup.textContent = count;
+function scrollToStories() {
+  const topbar = $('.topbar').offsetHeight;
+  const top = $('#stories').getBoundingClientRect().top + window.scrollY - topbar - $('#controls').offsetHeight - 8;
+  if (Math.abs(top - window.scrollY) > 40) window.scrollTo({ top, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+}
+
+function syncAiUi() {
+  const ai = state.ai ? aiMeta.get(state.ai) : null;
+  $('#ai-cards').classList.toggle('has-active', Boolean(ai));
+  for (const control of document.querySelectorAll('.ai-card, .ai-badge')) {
+    control.setAttribute('aria-pressed', String(control.dataset.ai === state.ai));
+  }
+  const pill = $('#active-ai');
+  pill.hidden = !ai;
+  if (ai) {
+    pill.style.setProperty('--ai', ai.color);
+    pill.querySelector('.active-ai__icon').replaceWith(aiIcon(ai, 'active-ai__icon', 'dot'));
+    $('#active-ai-label').textContent = ai.label;
   }
 
+  // The whole page takes the selected AI's color (see :root[data-ai] in styles.css).
+  const root = document.documentElement;
+  if (ai) {
+    root.style.setProperty('--ai-color', ai.color);
+    root.dataset.ai = ai.id;
+  } else {
+    delete root.dataset.ai;
+  }
+  const url = new URL(window.location.href);
+  if (ai) url.searchParams.set('ia', ai.id);
+  else url.searchParams.delete('ia');
+  window.history.replaceState(null, '', url);
+}
+
+/** Selects an AI (or clears it when it is already selected). */
+function toggleAi(id, { scroll = false } = {}) {
+  state.ai = state.ai === id || !aiMeta.has(id) ? null : id;
+  syncAiUi();
+  applyFilters(true).then(() => {
+    if (scroll && state.ai) scrollToStories();
+  });
+}
+
+function renderAiFilter(ais) {
+  const section = $('#ai-filter');
+  section.hidden = ais.length === 0;
+  $('#ai-cards').replaceChildren(
+    ...ais.map((ai) => {
+      const card = el('button', { type: 'button', class: 'ai-card', 'data-ai': ai.id, 'aria-pressed': 'false', title: `Ver só notícias sobre ${ai.label}` }, [
+        el('span', { class: 'ai-card__mark', 'aria-hidden': 'true' }, aiIcon(ai, 'ai-card__logo')),
+        el('span', { class: 'ai-card__text' }, [el('span', { class: 'ai-card__name', text: ai.label }), el('span', { class: 'ai-card__maker', text: ai.maker })]),
+        el('span', { class: 'ai-card__count', 'aria-label': `${ai.count} notícias`, text: ai.count }),
+      ]);
+      card.style.setProperty('--ai', ai.color);
+      return card;
+    }),
+  );
+  if (ais.length) reveal(section);
+
+  // One delegated listener covers the cards, the lead and every story badge.
+  document.addEventListener('click', (event) => {
+    const control = event.target.closest('.ai-card, .ai-badge');
+    if (!control) return;
+    const inGrid = Boolean(control.closest('#stories'));
+    toggleAi(control.dataset.ai, { scroll: !inGrid });
+  });
+  $('#active-ai').addEventListener('click', () => toggleAi(state.ai));
+}
+
+function setupControls(showNew) {
   for (const button of document.querySelectorAll('.filter')) {
     button.addEventListener('click', () => {
       state.filter = button.dataset.filter;
@@ -270,8 +402,6 @@ function setupControls(stories, showNew) {
   }
 
   const onlyNew = $('#only-new');
-  const newCount = stories.filter((story) => story.isNew).length;
-  $('#new-count').textContent = newCount;
   onlyNew.closest('.only-new').hidden = !showNew;
   onlyNew.addEventListener('change', () => {
     state.onlyNew = onlyNew.checked;
@@ -318,8 +448,8 @@ function renderNotice(title, body) {
   $('#stories').replaceChildren(el('div', { class: 'notice' }, [el('h2', { text: title }), el('p', { text: body })]));
 }
 
-function render(edition, index, isLatest) {
-  const [lead, ...rest] = edition.stories;
+function render(edition, index, isLatest, requestedAi) {
+  const [lead] = edition.stories;
   const newCount = edition.stories.filter((story) => story.isNew).length;
   // When everything (or nothing) is new, the badges carry no information.
   const showNew = isLatest && newCount > 0 && newCount < edition.stories.length;
@@ -329,6 +459,7 @@ function render(edition, index, isLatest) {
   renderTicker(edition.stories);
   renderEditorial(edition);
   renderTrends(edition.trends ?? []);
+  aiMeta = new Map((edition.ais ?? []).map((ai) => [ai.id, ai]));
 
   const leadNode = $('#lead');
   leadNode.removeAttribute('aria-busy');
@@ -336,10 +467,14 @@ function render(edition, index, isLatest) {
   reveal(leadNode);
 
   const grid = $('#stories');
-  grid.replaceChildren(...rest.map((story, position) => storyNode(story, { index: position + 2, showNew })));
+  grid.replaceChildren(...edition.stories.map((story, position) => storyNode(story, { index: position + 1, showNew })));
   for (const node of grid.children) reveal(node);
 
-  setupControls(rest, showNew);
+  renderAiFilter(edition.ais ?? []);
+  setupControls(showNew);
+  if (requestedAi && aiMeta.has(requestedAi)) state.ai = requestedAi;
+  syncAiUi();
+  applyFilters(false);
   renderArchive(index, edition.id);
   renderFooter(edition);
 
@@ -353,7 +488,8 @@ async function main() {
   setupTheme();
   setupScrollEffects();
 
-  const requested = new URLSearchParams(window.location.search).get('e');
+  const params = new URLSearchParams(window.location.search);
+  const requested = params.get('e');
   const id = requested && EDITION_ID.test(requested) ? requested : null;
   const [edition, index] = await Promise.all([
     loadJson(id ? `data/editions/${id}.json` : 'data/latest.json').catch(() => null),
@@ -367,7 +503,7 @@ async function main() {
     );
     return;
   }
-  render(edition, Array.isArray(index) ? index : [], !id || index[0]?.id === id);
+  render(edition, Array.isArray(index) ? index : [], !id || index[0]?.id === id, params.get('ia'));
 }
 
 main();

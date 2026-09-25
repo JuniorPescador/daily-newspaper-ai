@@ -1,3 +1,4 @@
+import { detectAis, storyText, summarizeAis } from './ais.mjs';
 import { CATEGORIES } from './curate.mjs';
 import { canonicalUrl, stripHtml, truncate } from './text.mjs';
 import { editionSlot, nextRunAt } from './time.mjs';
@@ -59,7 +60,7 @@ export function buildStories(raw, candidates, previousUrls = new Set()) {
       .map((source) => ({ ...source, publishedAt: new Date(source.publishedAt).toISOString() }));
 
     const latest = sources.reduce((max, source) => (source.publishedAt > max ? source.publishedAt : max), sources[0].publishedAt);
-    stories.push({
+    const built = {
       id: `s${stories.length + 1}`,
       category: story.category,
       title,
@@ -70,7 +71,9 @@ export function buildStories(raw, candidates, previousUrls = new Set()) {
       publishedAt: latest,
       isNew: ![...seen].some((key) => previousUrls.has(key)),
       sources,
-    });
+    };
+    built.ais = detectAis(storyText(built));
+    stories.push(built);
     if (stories.length >= MAX_STORIES) break;
   }
   return stories;
@@ -100,6 +103,7 @@ export function assembleEdition({ raw, candidates, now, previousUrls, lastNumber
       .map((trend) => ({ label: clean(trend?.label, 40), note: clean(trend?.note, 160) }))
       .filter((trend) => trend.label)
       .slice(0, 5),
+    ais: summarizeAis(stories),
     stories,
     stats: {
       sources: report.length,

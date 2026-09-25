@@ -80,6 +80,11 @@
         </aside>
       </section>
 
+      <section class="ai-filter" id="ai-filter" aria-labelledby="ai-filter-title" hidden>
+        <h2 class="section-label" id="ai-filter-title">Filtrar por IA</h2>
+        <div class="ai-cards" id="ai-cards" role="group" aria-label="Filtrar por IA"></div>
+      </section>
+
       <div class="controls" id="controls">
         <div class="filters" role="group" aria-label="Filtrar por categoria">
           <span class="filters__indicator" aria-hidden="true"></span>
@@ -88,6 +93,11 @@
           <button type="button" class="filter" data-filter="mercado" aria-pressed="false">Mercado <sup data-count="mercado"></sup></button>
           <button type="button" class="filter" data-filter="achados" aria-pressed="false">Achados <sup data-count="achados"></sup></button>
         </div>
+        <button type="button" class="active-ai" id="active-ai" hidden aria-label="Remover filtro de IA">
+          <span class="active-ai__icon" aria-hidden="true"></span>
+          <span id="active-ai-label"></span>
+          <span class="active-ai__close" aria-hidden="true">×</span>
+        </button>
         <label class="only-new">
           <input type="checkbox" id="only-new" />
           <span class="switch" aria-hidden="true"></span>
