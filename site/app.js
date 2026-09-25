@@ -499,7 +499,7 @@ async function main() {
   if (!edition?.stories?.length) {
     renderNotice(
       id ? 'Edição não encontrada' : 'A primeira edição está a caminho',
-      id ? 'Ela pode ter saído do arquivo. Veja a edição mais recente.' : 'O jornal é gerado a cada 6 horas. Volte daqui a pouco.',
+      id ? 'Ela pode ter saído do arquivo. Veja a edição mais recente.' : 'O jornal sai duas vezes por dia, às 6h e às 18h. Volte daqui a pouco.',
     );
     return;
   }

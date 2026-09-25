@@ -100,6 +100,7 @@ test('edition slots follow São Paulo time', () => {
 });
 
 test('nextRunAt follows the workflow cron and rolls over midnight UTC', () => {
-  assert.equal(nextRunAt(new Date('2026-09-25T09:17:00Z')).toISOString(), '2026-09-25T15:17:00.000Z');
-  assert.equal(nextRunAt(new Date('2026-09-25T22:00:00Z')).toISOString(), '2026-09-26T03:17:00.000Z');
+  assert.equal(nextRunAt(new Date('2026-09-25T09:17:00Z')).toISOString(), '2026-09-25T21:17:00.000Z');
+  assert.equal(nextRunAt(new Date('2026-09-25T15:30:00Z')).toISOString(), '2026-09-25T21:17:00.000Z');
+  assert.equal(nextRunAt(new Date('2026-09-25T22:00:00Z')).toISOString(), '2026-09-26T09:17:00.000Z');
 });
