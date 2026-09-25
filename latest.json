@@ -1,0 +1,639 @@
+{
+  "schemaVersion": 1,
+  "id": "2026-09-25-18h",
+  "number": 1,
+  "slot": "noite",
+  "label": "Edição da noite",
+  "generatedAt": "2026-09-25T23:57:58.865Z",
+  "nextUpdateAt": "2026-09-26T09:17:00.000Z",
+  "curated": false,
+  "model": null,
+  "usage": null,
+  "note": "Edição automática, sem resumos por IA.",
+  "editorial": "",
+  "trends": [
+    {
+      "label": "Agentes de IA",
+      "note": "30 menções entre as notícias coletadas."
+    },
+    {
+      "label": "Meta",
+      "note": "17 menções entre as notícias coletadas."
+    },
+    {
+      "label": "OpenAI",
+      "note": "15 menções entre as notícias coletadas."
+    },
+    {
+      "label": "Anthropic e Claude",
+      "note": "15 menções entre as notícias coletadas."
+    },
+    {
+      "label": "Google e Gemini",
+      "note": "13 menções entre as notícias coletadas."
+    }
+  ],
+  "ais": [
+    {
+      "id": "claude",
+      "label": "Claude",
+      "maker": "Anthropic",
+      "color": "#d97757",
+      "logo": "claude",
+      "count": 5
+    },
+    {
+      "id": "chatgpt",
+      "label": "ChatGPT",
+      "maker": "OpenAI",
+      "color": "#10a37f",
+      "logo": "chatgpt",
+      "count": 4
+    },
+    {
+      "id": "llama",
+      "label": "Llama",
+      "maker": "Meta",
+      "color": "#0866ff",
+      "logo": "llama",
+      "count": 1
+    }
+  ],
+  "stories": [
+    {
+      "id": "s1",
+      "category": "novidades",
+      "title": "Proaction boosts sales 60% and saves 75+ hours with Codex",
+      "summary": "With Codex, GPT-Live-1, and GPT-6 Astra, Proaction builds, operates, and sells modern fleet management faster.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T19:00:00.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "OpenAI",
+          "url": "https://openai.com/index/proaction",
+          "title": "Proaction boosts sales 60% and saves 75+ hours with Codex",
+          "publishedAt": "2026-09-25T19:00:00.000Z"
+        }
+      ],
+      "ais": [
+        "chatgpt"
+      ]
+    },
+    {
+      "id": "s2",
+      "category": "novidades",
+      "title": "OpenAI Found ‘Dozens’ of New Instances of AI Misbehavior",
+      "summary": "OpenAI said Friday it has notified dozens of entities, including governments and universities, that its agents may have breached or spammed their websites or services. The agents took actions such as obtaining unauthorized access to websites or using the organizations’ public pages as message ...",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T23:20:57.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "The Information",
+          "url": "https://www.theinformation.com/briefings/openai-found-dozens-new-instances-ai-misbehavior",
+          "title": "OpenAI Found ‘Dozens’ of New Instances of AI Misbehavior",
+          "publishedAt": "2026-09-25T23:20:57.000Z"
+        }
+      ],
+      "ais": [
+        "chatgpt"
+      ]
+    },
+    {
+      "id": "s3",
+      "category": "mercado",
+      "title": "OpenRouter: from Seed to Stripe — with OpenRouter’s Alex Atallah & AMP’s Anjney Midha",
+      "summary": "In 2023 most people doubted that there could be more than 1 or 2 frontier model labs. Now there are dozens.... and Stripe just bought the best known one for $7B.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T23:14:41.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "Latent Space",
+          "url": "https://www.latent.space/p/openrouter",
+          "title": "OpenRouter: from Seed to Stripe — with OpenRouter’s Alex Atallah & AMP’s Anjney Midha",
+          "publishedAt": "2026-09-25T23:14:41.000Z"
+        }
+      ],
+      "ais": []
+    },
+    {
+      "id": "s4",
+      "category": "novidades",
+      "title": "Crusoe abandons $1.25B plan to use Boom turbines at AI data centers",
+      "summary": "Boom Supersonic CEO Blake Scholl said its new stationary power plants were no longer in Crusoe's near-term plans.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T23:11:10.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/09/25/crusoe-abandons-1-25b-plan-to-use-boom-turbines-at-ai-data-centers/",
+          "title": "Crusoe abandons $1.25B plan to use Boom turbines at AI data centers",
+          "publishedAt": "2026-09-25T23:11:10.000Z"
+        }
+      ],
+      "ais": []
+    },
+    {
+      "id": "s5",
+      "category": "novidades",
+      "title": "Fireworks, Fal Consider New Rounds as Inference Demand Soars",
+      "summary": "Startups such as Fal and Fireworks AI that sell access to AI models and servers have been ringing up sales as developers use them to run models quickly, sparking a new investor rush to pour money into them. Fal, which specializes in providing such inference services for video and image generation models such as…",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T22:59:19.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "The Information",
+          "url": "https://www.theinformation.com/articles/fireworks-fal-consider-new-rounds-inference-demand-soars",
+          "title": "Fireworks, Fal Consider New Rounds as Inference Demand Soars",
+          "publishedAt": "2026-09-25T22:59:19.000Z"
+        }
+      ],
+      "ais": []
+    },
+    {
+      "id": "s6",
+      "category": "achados",
+      "title": "Unsecured OpenAI agents posted 53 user images on the internet without the lab’s knowledge",
+      "summary": "AI agents operating in OpenAI's research environment posted user images on public image-hosting sites without the lab's knowledge.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T22:20:47.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/09/25/unsecured-openai-agents-posted-53-user-images-on-the-internet-without-the-labs-knowledge/",
+          "title": "Unsecured OpenAI agents posted 53 user images on the internet without the lab’s knowledge",
+          "publishedAt": "2026-09-25T22:20:47.000Z"
+        }
+      ],
+      "ais": [
+        "chatgpt"
+      ]
+    },
+    {
+      "id": "s7",
+      "category": "novidades",
+      "title": "Court rules Trump can blacklist Anthropic for refusing to enable Claude features",
+      "summary": "\"Overly constrained AI models\" could cause military operations to fail, judges say.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T21:36:20.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/tech-policy/2026/09/court-rules-trump-can-blacklist-anthropic-for-refusing-to-enable-claude-features/",
+          "title": "Court rules Trump can blacklist Anthropic for refusing to enable Claude features",
+          "publishedAt": "2026-09-25T21:36:20.000Z"
+        }
+      ],
+      "ais": [
+        "claude"
+      ]
+    },
+    {
+      "id": "s8",
+      "category": "novidades",
+      "title": "Tesla workers balk at training Optimus humanoid robots as replacements",
+      "summary": "Despite challenges, Tesla aims for 1,000 Optimus robots per week by end of 2026.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T21:10:51.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "Ars Technica",
+          "url": "https://arstechnica.com/ai/2026/09/tesla-workers-balk-at-training-optimus-humanoid-robots-as-replacements/",
+          "title": "Tesla workers balk at training Optimus humanoid robots as replacements",
+          "publishedAt": "2026-09-25T21:10:51.000Z"
+        }
+      ],
+      "ais": []
+    },
+    {
+      "id": "s9",
+      "category": "novidades",
+      "title": "How recent grads and college students should be thinking about AI, the CV, and the job market",
+      "summary": "It is getting harder for college students and recent graduates to be seen in the job market as AI is used as a hiring tool and demanded by employers as a skill.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T20:52:09.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "CNBC",
+          "url": "https://www.cnbc.com/2026/09/25/ai-jobs-recent-graduates-college-degrees.html",
+          "title": "How recent grads and college students should be thinking about AI, the CV, and the job market",
+          "publishedAt": "2026-09-25T20:52:09.000Z"
+        }
+      ],
+      "ais": []
+    },
+    {
+      "id": "s10",
+      "category": "novidades",
+      "title": "Meta opens early access program for new Muse features",
+      "summary": "Anyone interested in joining has to ask Muse to put them on the list.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T20:34:53.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/09/25/meta-opens-early-access-program-for-new-muse-features/",
+          "title": "Meta opens early access program for new Muse features",
+          "publishedAt": "2026-09-25T20:34:53.000Z"
+        }
+      ],
+      "ais": [
+        "llama"
+      ]
+    },
+    {
+      "id": "s11",
+      "category": "mercado",
+      "title": "Anthropic to pay Akamai $11.6 billion over seven years in cloud deal",
+      "summary": "Anthropic has committed $11.6 billion over seven years to Akamai's cloud infrastructure, a bet on CPUs that could grow to about $20 billion, and in an unusual arrangement, Akamai is giving Anthropic a potential stake of up to 5% of its stock that grows as Anthropic spends more.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T19:13:38.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/09/25/anthropic-to-pay-akamai-11-6-billion-over-seven-years-in-cloud-deal/",
+          "title": "Anthropic to pay Akamai $11.6 billion over seven years in cloud deal",
+          "publishedAt": "2026-09-25T19:13:38.000Z"
+        }
+      ],
+      "ais": [
+        "claude"
+      ]
+    },
+    {
+      "id": "s12",
+      "category": "mercado",
+      "title": "Ahead of US IPO, British AI neocloud Nscale secures $3.36B in convertible financing",
+      "summary": "The funding, which comes from Third Point, Nvidia, and others, will fuel the company's massive AI data center buildout.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T18:33:59.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/09/25/ahead-of-u-s-ipo-british-ai-neocloud-nscale-secures-3-36b-in-convertible-finacing/",
+          "title": "Ahead of US IPO, British AI neocloud Nscale secures $3.36B in convertible financing",
+          "publishedAt": "2026-09-25T18:33:59.000Z"
+        }
+      ],
+      "ais": []
+    },
+    {
+      "id": "s13",
+      "category": "mercado",
+      "title": "The Week’s 10 Biggest Funding Rounds: Cybersecurity, AI And Health Take The Lead",
+      "summary": "This week delivered a bountiful supply of big startup funding rounds, led by two $400 million financings for cybersecurity unicorns and large financings for startups across hot sectors, including foundational AI, drug discovery, neurotech, and even rainmaking.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T17:44:29.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "Crunchbase News",
+          "url": "https://news.crunchbase.com/venture/biggest-funding-rounds-cybersecurity-ai-health-island-cyera/",
+          "title": "The Week’s 10 Biggest Funding Rounds: Cybersecurity, AI And Health Take The Lead",
+          "publishedAt": "2026-09-25T17:44:29.000Z"
+        }
+      ],
+      "ais": []
+    },
+    {
+      "id": "s14",
+      "category": "achados",
+      "title": "Some Supabase customers are publicly exposing reams of people’s data to the web",
+      "summary": "The findings highlight how AI-generated and vibe-coded apps can spill and expose users' data when not configured or secured properly.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T17:29:46.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/09/25/some-supabase-customers-are-publicly-exposing-reams-of-peoples-data-to-the-web/",
+          "title": "Some Supabase customers are publicly exposing reams of people’s data to the web",
+          "publishedAt": "2026-09-25T17:29:46.000Z"
+        }
+      ],
+      "ais": []
+    },
+    {
+      "id": "s15",
+      "category": "achados",
+      "title": "For months, OpenAI’s agent swarms have been attacking online databases to find obscure facts",
+      "summary": "The latest unauthorized agent swarms were discovered by researchers.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T15:48:14.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/09/25/for-months-openais-agent-swarms-have-been-attacking-online-databases-to-find-obscure-facts/",
+          "title": "For months, OpenAI’s agent swarms have been attacking online databases to find obscure facts",
+          "publishedAt": "2026-09-25T15:48:14.000Z"
+        }
+      ],
+      "ais": [
+        "chatgpt"
+      ]
+    },
+    {
+      "id": "s16",
+      "category": "mercado",
+      "title": "Anthropic’s founders seek voting control ahead of IPO",
+      "summary": "Anthropic is asking its shareholders to approve a structure that would give its seven co-founders a combined 50.1% of the vote on most corporate matters.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T15:40:03.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/09/25/anthropics-founders-seek-voting-control-ahead-of-ipo/",
+          "title": "Anthropic’s founders seek voting control ahead of IPO",
+          "publishedAt": "2026-09-25T15:40:03.000Z"
+        }
+      ],
+      "ais": [
+        "claude"
+      ]
+    },
+    {
+      "id": "s17",
+      "category": "mercado",
+      "title": "Tech Layoffs Outpace 2025 As Big Companies Shift Spending To AI",
+      "summary": "From January through August, U.S. tech layoffs reached at least 94,046, up 16.8% from 80,486 in the same period of 2025. Interestingly, and unsurprisingly, many of the cuts came as tech companies redirected spending toward AI and restructured operations to reduce costs.",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T11:00:42.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "Crunchbase News",
+          "url": "https://news.crunchbase.com/layoffs/2026-layoff-numbers-rise-ai-shift-orcl-meta-amzn/",
+          "title": "Tech Layoffs Outpace 2025 As Big Companies Shift Spending To AI",
+          "publishedAt": "2026-09-25T11:00:42.000Z"
+        }
+      ],
+      "ais": []
+    },
+    {
+      "id": "s18",
+      "category": "mercado",
+      "title": "Anthropic signs $11.6 billion cloud deal with Akamai, pushing its compute spending past $500 billion in under a year",
+      "summary": "Anthropic has reportedly signed a seven-year, $11.6 billion cloud deal with Akamai Technologies and will receive a warrant for up to 5 percent of Akamai's shares. Its compute deals have reportedly totaled $517 billion in 11 months. CEO Dario Amodei has warned that Anthropic could go bankrupt if its revenue forecasts…",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-25T10:43:15.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "The Decoder",
+          "url": "https://the-decoder.com/anthropic-signs-11-6-billion-cloud-deal-with-akamai-pushing-its-compute-spending-past-500-billion-in-under-a-year/",
+          "title": "Anthropic signs $11.6 billion cloud deal with Akamai, pushing its compute spending past $500 billion in under a year",
+          "publishedAt": "2026-09-25T10:43:15.000Z"
+        }
+      ],
+      "ais": [
+        "claude"
+      ]
+    },
+    {
+      "id": "s19",
+      "category": "achados",
+      "title": "Automating coherent long-form video generation",
+      "summary": "Generative AI",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-24T19:40:00.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "Google Research",
+          "url": "https://research.google/blog/coherent-long-form-video-generation/",
+          "title": "Automating coherent long-form video generation",
+          "publishedAt": "2026-09-24T19:40:00.000Z"
+        }
+      ],
+      "ais": []
+    },
+    {
+      "id": "s20",
+      "category": "achados",
+      "title": "Top AI experts badly underestimated how fast the field is moving, study finds",
+      "summary": "Leading AI experts have consistently underestimated how fast AI is advancing, according to the Forecasting Research Institute. AI reached gold-medal level at the International Mathematical Olympiad five years ahead of the median expert forecast, and Anthropic's annualized revenue is about five times what experts…",
+      "whyItMatters": "",
+      "tags": [],
+      "importance": 3,
+      "publishedAt": "2026-09-24T19:18:33.000Z",
+      "isNew": true,
+      "sources": [
+        {
+          "name": "The Decoder",
+          "url": "https://the-decoder.com/top-ai-experts-badly-underestimated-how-fast-the-field-is-moving-study-finds/",
+          "title": "Top AI experts badly underestimated how fast the field is moving, study finds",
+          "publishedAt": "2026-09-24T19:18:33.000Z"
+        }
+      ],
+      "ais": [
+        "claude"
+      ]
+    }
+  ],
+  "stats": {
+    "sources": 29,
+    "sourcesOk": 28,
+    "failed": [
+      "Import AI"
+    ],
+    "candidates": 120,
+    "list": [
+      {
+        "name": "OpenAI",
+        "ok": true,
+        "count": 1
+      },
+      {
+        "name": "Google DeepMind",
+        "ok": true,
+        "count": 1
+      },
+      {
+        "name": "Google AI",
+        "ok": true,
+        "count": 0
+      },
+      {
+        "name": "Google Research",
+        "ok": true,
+        "count": 1
+      },
+      {
+        "name": "Hugging Face",
+        "ok": true,
+        "count": 1
+      },
+      {
+        "name": "NVIDIA",
+        "ok": true,
+        "count": 1
+      },
+      {
+        "name": "AWS Machine Learning",
+        "ok": true,
+        "count": 4
+      },
+      {
+        "name": "TechCrunch",
+        "ok": true,
+        "count": 12
+      },
+      {
+        "name": "The Verge",
+        "ok": true,
+        "count": 10
+      },
+      {
+        "name": "MIT Technology Review",
+        "ok": true,
+        "count": 1
+      },
+      {
+        "name": "Ars Technica",
+        "ok": true,
+        "count": 8
+      },
+      {
+        "name": "WIRED",
+        "ok": true,
+        "count": 4
+      },
+      {
+        "name": "The Decoder",
+        "ok": true,
+        "count": 10
+      },
+      {
+        "name": "404 Media",
+        "ok": true,
+        "count": 3
+      },
+      {
+        "name": "The Information",
+        "ok": true,
+        "count": 8
+      },
+      {
+        "name": "CNBC",
+        "ok": true,
+        "count": 8
+      },
+      {
+        "name": "Crunchbase News",
+        "ok": true,
+        "count": 3
+      },
+      {
+        "name": "Simon Willison",
+        "ok": true,
+        "count": 5
+      },
+      {
+        "name": "Import AI",
+        "ok": false,
+        "count": 0
+      },
+      {
+        "name": "Latent Space",
+        "ok": true,
+        "count": 3
+      },
+      {
+        "name": "Interconnects",
+        "ok": true,
+        "count": 0
+      },
+      {
+        "name": "SemiAnalysis",
+        "ok": true,
+        "count": 0
+      },
+      {
+        "name": "Hacker News",
+        "ok": true,
+        "count": 10
+      },
+      {
+        "name": "Hugging Face Papers",
+        "ok": true,
+        "count": 10
+      },
+      {
+        "name": "Tecnoblog",
+        "ok": true,
+        "count": 6
+      },
+      {
+        "name": "Canaltech",
+        "ok": true,
+        "count": 6
+      },
+      {
+        "name": "InfoMoney",
+        "ok": true,
+        "count": 0
+      },
+      {
+        "name": "Startups.com.br",
+        "ok": true,
+        "count": 5
+      },
+      {
+        "name": "NeoFeed",
+        "ok": true,
+        "count": 0
+      }
+    ]
+  }
+}
