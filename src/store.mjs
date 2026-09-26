@@ -1,7 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-// Two editions a day: 120 entries keep about two months of history.
+// One edition a day: 120 entries keep about four months of history.
 export const ARCHIVE_LIMIT = 120;
 const EDITION_ID = /^\d{4}-\d{2}-\d{2}-\d{2}h$/;
 
