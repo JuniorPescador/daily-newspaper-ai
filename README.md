@@ -1,13 +1,13 @@
 # Diário da IA
 
-Jornal de notícias sobre inteligência artificial, com novidades, mercado e achados. Toda notícia leva o link da fonte original. Sai uma edição por dia, às 6h da manhã.
+Jornal de notícias sobre inteligência artificial, com novidades, mercado e achados. Toda notícia leva o link da fonte original. Sai uma edição por dia, às 5h da manhã.
 
 ## Como funciona
 
 1. **Coleta.** `sources.json` lista cerca de 30 fontes: laboratórios, veículos de tecnologia, newsletters, Hacker News, Hugging Face Papers e veículos brasileiros. Entram só itens das últimas 36 h (72 h para papers). Anúncios e duplicatas saem nessa etapa, e as fontes de assunto geral passam por um filtro de IA.
 2. **Curadoria.** O Claude recebe a lista numerada e monta a edição com 14 a 22 notícias. Ele junta coberturas do mesmo fato, escreve título, resumo e "por que importa" em PT-BR, separa em **Novidades / Mercado / Achados** e aponta as tendências. Os links vêm sempre dos feeds: o modelo só escolhe IDs, e IDs inventados são descartados.
 3. **Plano B.** Sem `ANTHROPIC_API_KEY`, ou se a API falhar, sai uma edição automática: os títulos e trechos originais, com a categoria definida por palavras-chave.
-4. **Publicação.** O GitHub Actions roda todo dia às 06:17 (horário de Brasília). Ele salva a edição no branch `data` e publica o site no GitHub Pages. O arquivo guarda cerca de 4 meses de edições.
+4. **Publicação.** O GitHub Actions roda todo dia às 05:17 (horário de Brasília). Ele salva a edição no branch `data` e publica o site no GitHub Pages. O arquivo guarda cerca de 4 meses de edições.
 
 A página é estática, sem etapa de build: `site/index.html`, `site/styles.css` e `site/app.js`, que lê `data/latest.json`.
 
@@ -49,7 +49,7 @@ O consumo real de cada edição fica em `usage`, dentro do JSON da edição.
 
 ## Limitações
 
-- O GitHub pode atrasar execuções agendadas em horários de pico (já passou de 2 horas). Nesses dias, a edição sai mais tarde.
+- O GitHub pode atrasar execuções agendadas em horários de pico (já passou de 2 horas). Por isso o jornal é agendado para as 5h: na maioria dos dias, a edição fica pronta antes das 6h.
 - O GitHub desativa workflows agendados em repositórios públicos sem atividade por 60 dias. Se o jornal parar, reative em **Actions → Edition**.
 - Os resumos são gerados por IA e podem conter erros. A página sempre leva à fonte original.
 - Algumas fontes bloqueiam robôs ou mudam o endereço do feed. Quando uma fonte falha, a edição sai sem ela e o erro aparece no log do workflow.

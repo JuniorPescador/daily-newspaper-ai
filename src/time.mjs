@@ -1,12 +1,13 @@
 export const TIME_ZONE = 'America/Sao_Paulo';
 
-// Keep in sync with the cron in .github/workflows/edition.yml ("17 9 * * *"): 06:17 in São Paulo.
-export const RUN_HOURS_UTC = [9];
+// Keep in sync with the cron in .github/workflows/edition.yml ("17 8 * * *"): 05:17 in São Paulo.
+export const RUN_HOURS_UTC = [8];
 export const RUN_MINUTE_UTC = 17;
 
 const SLOTS = [
   { from: 0, key: 'madrugada', label: 'Edição da madrugada' },
-  { from: 6, key: 'manha', label: 'Edição da manhã' },
+  // The daily run starts at 05:17, so the morning edition starts at 5.
+  { from: 5, key: 'manha', label: 'Edição da manhã' },
   { from: 12, key: 'tarde', label: 'Edição da tarde' },
   { from: 18, key: 'noite', label: 'Edição da noite' },
 ];

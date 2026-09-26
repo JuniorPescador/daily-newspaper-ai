@@ -2,9 +2,9 @@ name: Edition
 
 on:
   schedule:
-    # Daily at 06:17 in São Paulo (UTC-3), off the top of the hour to dodge the scheduler peak.
-    # Keep in sync with src/time.mjs.
-    - cron: '17 9 * * *'
+    # Daily at 05:17 in São Paulo (UTC-3): early, because scheduled runs can start late, and
+    # off the top of the hour to dodge the scheduler peak. Keep in sync with src/time.mjs.
+    - cron: '17 8 * * *'
   workflow_dispatch:
   push:
     branches: [main]
