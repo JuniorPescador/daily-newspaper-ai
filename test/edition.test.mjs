@@ -61,7 +61,7 @@ test('assembleEdition numbers editions and keeps the number when re-run in the s
   assert.equal(fresh.id, '2026-09-25-12h');
   assert.equal(fresh.number, 8);
   assert.equal(fresh.label, 'Edição da tarde');
-  assert.equal(fresh.nextUpdateAt, '2026-09-25T21:17:00.000Z');
+  assert.equal(fresh.nextUpdateAt, '2026-09-26T09:17:00.000Z');
   const rerun = assembleEdition({ ...base, lastNumber: 8, lastId: '2026-09-25-12h' });
   assert.equal(rerun.number, 8);
   assert.deepEqual([...sourceUrlsOf(fresh)].length, 5);
@@ -100,7 +100,7 @@ test('edition slots follow São Paulo time', () => {
 });
 
 test('nextRunAt follows the workflow cron and rolls over midnight UTC', () => {
-  assert.equal(nextRunAt(new Date('2026-09-25T09:17:00Z')).toISOString(), '2026-09-25T21:17:00.000Z');
-  assert.equal(nextRunAt(new Date('2026-09-25T15:30:00Z')).toISOString(), '2026-09-25T21:17:00.000Z');
+  assert.equal(nextRunAt(new Date('2026-09-25T09:00:00Z')).toISOString(), '2026-09-25T09:17:00.000Z');
+  assert.equal(nextRunAt(new Date('2026-09-25T09:17:00Z')).toISOString(), '2026-09-26T09:17:00.000Z');
   assert.equal(nextRunAt(new Date('2026-09-25T22:00:00Z')).toISOString(), '2026-09-26T09:17:00.000Z');
 });

@@ -1,7 +1,7 @@
 export const TIME_ZONE = 'America/Sao_Paulo';
 
-// Keep in sync with the cron in .github/workflows/edition.yml ("17 9,21 * * *"): 06:17 and 18:17 in São Paulo.
-export const RUN_HOURS_UTC = [9, 21];
+// Keep in sync with the cron in .github/workflows/edition.yml ("17 9 * * *"): 06:17 in São Paulo.
+export const RUN_HOURS_UTC = [9];
 export const RUN_MINUTE_UTC = 17;
 
 const SLOTS = [

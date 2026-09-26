@@ -1,11 +1,26 @@
 ---
 uid: chore-001
-status: in-progress
+status: done
 priority: normal
 scheduled: 2026-09-25
+completed: 2026-09-25
 timeEstimate: 30
 pomodoros: 0
 firstStartedAt: 2026-09-25T16:31:34.042009Z
+filesTouched:
+- .env.example
+- .github/workflows/edition.yml
+- README.md
+- docs/TaskNotes/Tasks/CHORE-001-default-to-claude-sonnet-5-and-12-hour-editions.md
+- site/app.js
+- site/index.html
+- src/curate.mjs
+- src/store.mjs
+- src/time.mjs
+- test/curate.test.mjs
+- test/edition.test.mjs
+commits:
+- f0f0189
 tags:
 - task
 - chore
