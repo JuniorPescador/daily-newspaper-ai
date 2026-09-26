@@ -1,5 +1,14 @@
 [
   {
+    "id": "2026-09-26-05h",
+    "number": 2,
+    "label": "Edição da manhã",
+    "generatedAt": "2026-09-26T12:14:43.927Z",
+    "headline": "Muse, da Meta, se torna fenômeno e expõe falhas de segurança",
+    "stories": 19,
+    "curated": true
+  },
+  {
     "id": "2026-09-25-18h",
     "number": 1,
     "label": "Edição da noite",
