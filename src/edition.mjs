@@ -100,7 +100,7 @@ export function assembleEdition({ raw, candidates, now, previousUrls, lastNumber
     note: curation.note ?? null,
     editorial: clean(raw.editorial, 400),
     trends: (Array.isArray(raw.trends) ? raw.trends : [])
-      .map((trend) => ({ label: clean(trend?.label, 40), note: clean(trend?.note, 160) }))
+      .map((trend) => ({ label: clean(trend?.label, 60), note: clean(trend?.note, 160) }))
       .filter((trend) => trend.label)
       .slice(0, 5),
     ais: summarizeAis(stories),

@@ -139,16 +139,18 @@ function reveal(node) {
 /* ---------- rendering ---------- */
 
 function sourcesList(story) {
+  // One chip per outlet: sources come ordered by relevance, so the first link of each outlet wins.
+  const outlets = new Map();
+  for (const source of story.sources) {
+    const href = safeHref(source.url);
+    if (href && !outlets.has(source.name)) outlets.set(source.name, { ...source, href });
+  }
   return el(
     'ul',
     { class: 'sources', 'aria-label': 'Fontes' },
-    story.sources
-      .map((source) => {
-        const href = safeHref(source.url);
-        if (!href) return null;
-        return el('li', {}, el('a', { href, target: '_blank', rel: 'noopener noreferrer', title: source.title }, [source.name, arrowIcon()]));
-      })
-      .filter(Boolean),
+    [...outlets.values()].map((source) =>
+      el('li', {}, el('a', { href: source.href, target: '_blank', rel: 'noopener noreferrer', title: source.title }, [source.name, arrowIcon()])),
+    ),
   );
 }
 

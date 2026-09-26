@@ -67,6 +67,13 @@ test('assembleEdition numbers editions and keeps the number when re-run in the s
   assert.deepEqual([...sourceUrlsOf(fresh)].length, 5);
 });
 
+test('assembleEdition keeps trend labels up to 60 characters', () => {
+  const label = 'Anthropic sob pressão regulatória e judicial';
+  const raw = { ...fallbackCuration(candidates, { now }), trends: [{ label, note: 'n' }] };
+  const edition = assembleEdition({ raw, candidates, now, previousUrls: new Set(), curation: { curated: true }, report: [] });
+  assert.equal(edition.trends[0].label, label);
+});
+
 test('assembleEdition refuses an edition with too few valid stories', () => {
   assert.throws(
     () =>
