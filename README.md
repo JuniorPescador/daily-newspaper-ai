@@ -11,6 +11,8 @@ Jornal de notícias sobre inteligência artificial, com novidades, mercado e ach
 
 A página é estática, sem etapa de build: `site/index.html`, `site/styles.css` e `site/app.js`, que lê `data/latest.json`.
 
+**Efeitos.** Uma aurora animada atrás do título assume a cor da IA escolhida. Os cards inclinam com o mouse, e o título tomba para trás ao rolar a página. O "Mapa do dia" mostra, em 3D, as notícias ligadas às IAs que citam. Ao filtrar por uma IA, a logo dela aparece em 3D no fundo. O código fica em `site/fx/`. O mapa e a logo usam Three.js, carregado do jsDelivr só quando a página precisa. Tudo desliga para quem ativou "reduzir movimento" no sistema.
+
 **Filtro por IA.** Cada notícia recebe selos das IAs citadas (ChatGPT, Claude, Gemini, Llama, Grok, Copilot, Mistral, DeepSeek, Qwen e outras). A lista fica em `src/ais.mjs` e a detecção roda na geração da edição. Clicar num card ou selo mostra só as notícias daquela IA, e o link fica compartilhável (`?ia=claude`).
 
 ## Rodar localmente
