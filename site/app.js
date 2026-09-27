@@ -209,6 +209,7 @@ function storyNode(story, { index, lead = false, showNew }) {
     'article',
     {
       class: 'story',
+      'data-story': story.id,
       'data-category': story.category,
       'data-new': String(Boolean(story.isNew)),
       'data-ais': (story.ais ?? []).join(' '),
@@ -354,7 +355,11 @@ function syncAiUi() {
   const url = new URL(window.location.href);
   if (ai) url.searchParams.set('ia', ai.id);
   else url.searchParams.delete('ia');
-  window.history.replaceState(null, '', url);
+  try {
+    window.history.replaceState(null, '', url);
+  } catch {
+    // Some embedded viewers refuse history changes; the filter still works, only the link isn't updated.
+  }
 }
 
 /** Selects an AI (or clears it when it is already selected). */
@@ -465,6 +470,7 @@ function render(edition, index, isLatest, requestedAi) {
 
   const leadNode = $('#lead');
   leadNode.removeAttribute('aria-busy');
+  leadNode.dataset.story = lead.id;
   leadNode.replaceChildren(...storyNode(lead, { lead: true, showNew }).filter(Boolean));
   reveal(leadNode);
 
@@ -506,6 +512,9 @@ async function main() {
     return;
   }
   render(edition, Array.isArray(index) ? index : [], !id || index[0]?.id === id, params.get('ia'));
+  import('./fx/index.js')
+    .then((fx) => fx.startEffects({ edition }))
+    .catch((error) => console.warn('[fx] effects unavailable:', error));
 }
 
 main();
