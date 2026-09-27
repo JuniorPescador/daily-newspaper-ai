@@ -1,5 +1,14 @@
 [
   {
+    "id": "2026-09-27-05h",
+    "number": 3,
+    "label": "Edição da manhã",
+    "generatedAt": "2026-09-27T13:55:52.067Z",
+    "headline": "OpenAI pausa treinamento de seus modelos mais avançados após incidentes de segurança",
+    "stories": 15,
+    "curated": true
+  },
+  {
     "id": "2026-09-26-05h",
     "number": 2,
     "label": "Edição da manhã",
