@@ -1,3 +1,5 @@
+import { ago, duration } from './relative-time.js';
+
 const TIME_ZONE = 'America/Sao_Paulo';
 const EDITION_ID = /^\d{4}-\d{2}-\d{2}-\d{2}h$/;
 const CATEGORY_LABEL = { novidades: 'Novidades', mercado: 'Mercado', achados: 'Achados' };
@@ -50,22 +52,6 @@ function capitalize(text) {
 const longDate = new Intl.DateTimeFormat('pt-BR', { timeZone: TIME_ZONE, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 const shortDate = new Intl.DateTimeFormat('pt-BR', { timeZone: TIME_ZONE, weekday: 'short', day: '2-digit', month: 'short' });
 const fullDateTime = new Intl.DateTimeFormat('pt-BR', { timeZone: TIME_ZONE, dateStyle: 'long', timeStyle: 'short' });
-
-function ago(iso, now = Date.now()) {
-  const minutes = Math.round((now - new Date(iso).getTime()) / 60_000);
-  if (minutes < 1) return 'agora';
-  if (minutes < 60) return `há ${minutes} min`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `há ${hours}h`;
-  const days = Math.round(hours / 24);
-  return days === 1 ? 'ontem' : `há ${days} dias`;
-}
-
-function duration(ms) {
-  const minutes = Math.max(0, Math.round(ms / 60_000));
-  const hours = Math.floor(minutes / 60);
-  return hours ? `${hours}h ${String(minutes % 60).padStart(2, '0')}min` : `${minutes} min`;
-}
 
 async function loadJson(url) {
   const response = await fetch(url, { cache: 'no-cache' });
