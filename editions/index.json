@@ -1,5 +1,14 @@
 [
   {
+    "id": "2026-09-28-05h",
+    "number": 5,
+    "label": "Edição da manhã",
+    "generatedAt": "2026-09-28T08:00:36.400Z",
+    "headline": "Goldman Sachs projeta US$ 1,2 trilhão em investimento de Big Tech em IA até 2027",
+    "stories": 18,
+    "curated": true
+  },
+  {
     "id": "2026-09-27-18h",
     "number": 4,
     "label": "Edição da noite",
