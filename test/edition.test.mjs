@@ -4,7 +4,8 @@ import { formatCandidates } from '../src/curate.mjs';
 import { assembleEdition, buildStories, sourceUrlsOf } from '../src/edition.mjs';
 import { categorize, fallbackCuration } from '../src/fallback.mjs';
 import { canonicalUrl } from '../src/text.mjs';
-import { editionSlot, nextRunAt } from '../src/time.mjs';
+import { editionSlot, localDate, nextRunAt } from '../src/time.mjs';
+import { hasEditionOn } from '../src/store.mjs';
 
 const now = new Date('2026-09-25T15:30:00Z'); // 12:30 in São Paulo
 
@@ -61,7 +62,7 @@ test('assembleEdition numbers editions and keeps the number when re-run in the s
   assert.equal(fresh.id, '2026-09-25-12h');
   assert.equal(fresh.number, 8);
   assert.equal(fresh.label, 'Edição da tarde');
-  assert.equal(fresh.nextUpdateAt, '2026-09-26T08:17:00.000Z');
+  assert.equal(fresh.nextUpdateAt, '2026-09-26T08:00:00.000Z');
   const rerun = assembleEdition({ ...base, lastNumber: 8, lastId: '2026-09-25-12h' });
   assert.equal(rerun.number, 8);
   assert.deepEqual([...sourceUrlsOf(fresh)].length, 5);
@@ -109,7 +110,17 @@ test('edition slots follow São Paulo time', () => {
 });
 
 test('nextRunAt follows the workflow cron and rolls over midnight UTC', () => {
-  assert.equal(nextRunAt(new Date('2026-09-25T08:00:00Z')).toISOString(), '2026-09-25T08:17:00.000Z');
-  assert.equal(nextRunAt(new Date('2026-09-25T08:17:00Z')).toISOString(), '2026-09-26T08:17:00.000Z');
-  assert.equal(nextRunAt(new Date('2026-09-25T22:00:00Z')).toISOString(), '2026-09-26T08:17:00.000Z');
+  assert.equal(nextRunAt(new Date('2026-09-25T07:59:00Z')).toISOString(), '2026-09-25T08:00:00.000Z');
+  assert.equal(nextRunAt(new Date('2026-09-25T08:00:00Z')).toISOString(), '2026-09-26T08:00:00.000Z');
+  assert.equal(nextRunAt(new Date('2026-09-25T22:00:00Z')).toISOString(), '2026-09-26T08:00:00.000Z');
+});
+
+test('the fallback run only generates when the day has no edition yet', () => {
+  const index = [{ id: '2026-09-27-05h' }, { id: '2026-09-26-05h' }];
+  // 10:55 in São Paulo on the 27th: the morning edition already exists.
+  assert.equal(hasEditionOn(index, localDate(new Date('2026-09-27T13:55:00Z'))), true);
+  // 01:00 UTC on the 28th is still the 27th in São Paulo.
+  assert.equal(localDate(new Date('2026-09-28T01:00:00Z')), '2026-09-27');
+  assert.equal(hasEditionOn(index, '2026-09-28'), false);
+  assert.equal(hasEditionOn([], '2026-09-28'), false);
 });
