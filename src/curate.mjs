@@ -92,30 +92,28 @@ export function formatCandidates(candidates, { now, previousUrls = new Set(), ca
     .join('\n\n');
 }
 
-function requestFor(model, content) {
+function requestFor({ model, system, content, schema, effort, maxTokens }) {
   const request = {
     model,
-    max_tokens: 32000,
-    system: SYSTEM_PROMPT,
+    max_tokens: maxTokens,
+    system,
     messages: [{ role: 'user', content }],
-    output_config: { format: { type: 'json_schema', schema: OUTPUT_SCHEMA } },
+    output_config: { format: { type: 'json_schema', schema } },
   };
   // Haiku 4.5 predates adaptive thinking and effort; every newer model takes both.
   if (!model.includes('haiku')) {
     request.thinking = { type: 'adaptive' };
-    request.output_config.effort = 'medium';
+    request.output_config.effort = effort;
   }
   return request;
 }
 
 /**
- * Asks Claude to curate the edition. Returns the raw structured output plus usage;
- * the caller validates it against the candidate list (see assembleEdition).
+ * Sends one structured-output request and returns the parsed JSON plus usage.
+ * Refusals, truncated output and invalid JSON throw CurationError.
  */
-export async function curateWithClaude({ candidates, now, previousUrls, canonical, model = DEFAULT_MODEL, client = new Anthropic() }) {
-  const list = formatCandidates(candidates, { now, previousUrls, canonical });
-  const content = `Current time: ${now.toISOString()}\n\n${candidates.length} candidates:\n\n${list}`;
-  const request = requestFor(model, content);
+export async function requestJson({ client, model, system, content, schema, effort = 'medium', maxTokens = 32000 }) {
+  const request = requestFor({ model, system, content, schema, effort, maxTokens });
 
   const stream = SERVER_FALLBACK_MODELS.has(model)
     ? client.beta.messages.stream({ ...request, betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' })
@@ -142,4 +140,14 @@ export async function curateWithClaude({ candidates, now, previousUrls, canonica
     model: message.model,
     usage: { input_tokens: message.usage.input_tokens, output_tokens: message.usage.output_tokens },
   };
+}
+
+/**
+ * Asks Claude to curate the edition. Returns the raw structured output plus usage;
+ * the caller validates it against the candidate list (see assembleEdition).
+ */
+export async function curateWithClaude({ candidates, now, previousUrls, canonical, model = DEFAULT_MODEL, client = new Anthropic() }) {
+  const list = formatCandidates(candidates, { now, previousUrls, canonical });
+  const content = `Current time: ${now.toISOString()}\n\n${candidates.length} candidates:\n\n${list}`;
+  return requestJson({ client, model, system: SYSTEM_PROMPT, content, schema: OUTPUT_SCHEMA });
 }

@@ -4,8 +4,9 @@
     {
       "name": "diario-ia",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["scripts/serve.mjs", "--port", "4321"],
-      "port": 4321
+      "runtimeArgs": ["scripts/serve.mjs"],
+      "port": 4321,
+      "autoPort": true
     }
   ]
 }

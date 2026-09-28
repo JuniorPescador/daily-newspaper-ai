@@ -1,0 +1,34 @@
+{
+  "github": {
+    "periods": ["daily", "weekly"],
+    "max": 12
+  },
+  "huggingface": {
+    "max": 12
+  },
+  "bluesky": {
+    "windowHours": 36,
+    "max": 15,
+    "accounts": [
+      "simonwillison.net",
+      "emollick.bsky.social",
+      "natolambert.bsky.social",
+      "hardmaru.bsky.social",
+      "mmitchell.bsky.social",
+      "melaniemitchell.bsky.social",
+      "emilymbender.bsky.social",
+      "garymarcus.bsky.social",
+      "randomwalker.bsky.social",
+      "edzitron.com",
+      "caseynewton.bsky.social",
+      "404media.co",
+      "nucleo.jor.br"
+    ],
+    "feeds": [
+      {
+        "name": "AI/ML Feed: Blend",
+        "uri": "at://did:plc:lrzkd5exmxqrblbruvjieofj/app.bsky.feed.generator/MLBlend"
+      }
+    ]
+  }
+}

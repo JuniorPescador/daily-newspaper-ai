@@ -1,4 +1,5 @@
-// One edition, end to end: collect feeds → curate (Claude, or keyword fallback) → write DATA_DIR.
+// One edition, end to end: collect feeds → curate (Claude, or keyword fallback) → add the
+// "Em alta" section (trending repos, models and posts) → write DATA_DIR.
 // Used by the CLI (scripts/edition.mjs) and by the Railway process (scripts/start.mjs).
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -10,12 +11,34 @@ import { fallbackCuration } from './fallback.mjs';
 import { hasEditionOn, previousEdition, readIndex, saveEdition } from './store.mjs';
 import { canonicalUrl } from './text.mjs';
 import { editionSlot, localDate } from './time.mjs';
+import { assembleTrending, collectTrending, curateTrending, fallbackTrending, trendingUrlsOf } from './trending.mjs';
 
 function describeError(error) {
   if (error instanceof Anthropic.AuthenticationError) return 'chave da API inválida';
   if (error instanceof Anthropic.RateLimitError) return 'limite de uso da API atingido';
   if (error instanceof Anthropic.APIError) return `erro da API (${error.status ?? 'sem status'}): ${error.message}`;
   return error?.message ?? String(error);
+}
+
+/** The "Em alta" section, or null when nothing was collected. */
+async function trendingSection({ root, now, previous, model, useAi, log }) {
+  const config = JSON.parse(await readFile(path.join(root, 'trending.json'), 'utf8'));
+  log.log('Coletando a seção "Em alta"…');
+  const { pool, report } = await collectTrending({ config, now, log: (line) => log.log(line) });
+  if (pool.repos.length + pool.models.length + pool.posts.length === 0) return null;
+
+  if (useAi) {
+    try {
+      const result = await curateTrending({ pool, now, previousUrls: trendingUrlsOf(previous), model });
+      log.log(`Tokens do "Em alta": ${result.usage.input_tokens} entrada, ${result.usage.output_tokens} saída.`);
+      const section = assembleTrending({ raw: result.raw, pool, curation: { curated: true, model: result.model, usage: result.usage }, report });
+      if (section) return section;
+      log.warn('A curadoria do "Em alta" não escolheu nada. Usando a lista automática.');
+    } catch (error) {
+      log.warn(`Curadoria do "Em alta" falhou (${describeError(error)}). Usando a lista automática.`);
+    }
+  }
+  return assembleTrending({ raw: fallbackTrending(pool), pool, curation: { curated: false }, report });
 }
 
 /**
@@ -72,8 +95,20 @@ export async function runEdition({ root, dataDir, now = new Date(), ifMissing = 
   }
   edition ??= assembleEdition({ ...base, raw: fallbackCuration(candidates, { now }), curation });
 
+  // The section is extra: when it fails, the edition goes out without it.
+  try {
+    edition.trending = await trendingSection({ root, now, previous, model, useAi: hasKey && !noAi, log });
+  } catch (error) {
+    log.warn(`A seção "Em alta" ficou de fora (${describeError(error)}).`);
+    edition.trending = null;
+  }
+
   await saveEdition(dataDir, edition, index);
   const fresh = edition.stories.filter((story) => story.isNew).length;
   log.log(`✓ ${edition.label} nº ${edition.number} (${edition.id}): ${edition.stories.length} notícias, ${fresh} novas.`);
+  if (edition.trending) {
+    const { repos, models, posts } = edition.trending;
+    log.log(`✓ Em alta: ${repos.length} repositórios, ${models.length} modelos, ${posts.length} posts.`);
+  }
   return edition;
 }

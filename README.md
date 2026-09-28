@@ -15,6 +15,14 @@ A página é estática, sem etapa de build: `site/index.html`, `site/styles.css`
 
 **Filtro por IA.** Cada notícia recebe selos das IAs citadas (ChatGPT, Claude, Gemini, Llama, Grok, Copilot, Mistral, DeepSeek, Qwen e outras). A lista fica em `src/ais.mjs` e a detecção roda na geração da edição. Clicar num card ou selo mostra só as notícias daquela IA, e o link fica compartilhável (`?ia=claude`).
 
+**Em alta.** Depois das notícias, uma seção mostra o que a comunidade de IA está construindo e discutindo. São três colunas com até 5 itens cada:
+
+- **Repositórios:** projetos de IA do [GitHub Trending](https://github.com/trending), primeiro os do dia e, para completar, os da semana. Não existe API oficial para essa lista, então o script lê a página.
+- **Modelos:** modelos em alta no Hugging Face. Ficam de fora cópias quantizadas (GGUF), adaptadores, fusões e conteúdo adulto.
+- **Posts:** posts do Bluesky das últimas 36 h, vindos de contas de IA escolhidas a dedo e de um feed público de IA/ML. São ordenados por curtidas e reposts, com no máximo 2 por autor. A busca do Bluesky exige login, por isso a coleta usa contas e feeds, que são públicos.
+
+O Claude escolhe os itens e escreve uma linha em PT-BR sobre cada um, numa chamada separada e com esforço baixo. Sem a chave da API, entram os primeiros de cada lista sem comentário, e os posts vêm só das contas escolhidas. As contas, os feeds e os limites ficam em `trending.json`. Se a coleta falhar, a edição sai sem a seção.
+
 ## Rodar localmente
 
 ```bash
@@ -60,6 +68,8 @@ Cada edição envia cerca de 12 mil tokens (as ~120 notícias candidatas) e rece
 | `claude-haiku-4-5` | ~US$ 0,04 | ~US$ 1 |
 
 O consumo real de cada edição fica em `usage`, dentro do JSON da edição.
+
+A seção "Em alta" faz uma chamada a mais, bem menor: cerca de 4 mil tokens de entrada e até 2 mil de saída. Com o `claude-sonnet-5`, isso dá uns US$ 0,02 por edição, perto de US$ 0,70 por mês. O consumo fica em `trending.usage`.
 
 ## Limitações
 
