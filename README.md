@@ -47,31 +47,30 @@ O agendador do GitHub chega a atrasar horas. Por isso, quem dispara a edição �
 2. Em **Repository access**, escolha **Only select repositories** e marque `daily-newspaper-ai`.
 3. Clique em **Generate token** e copie o token, que começa com `github_pat_`.
 
-**2. Criar a tarefa no cron-job.org**
+**2. Pegar a chave de API do cron-job.org.** Crie uma conta grátis em [cron-job.org](https://cron-job.org). No painel, abra **Settings → API** e crie uma chave.
+
+**3. Criar a tarefa pela API.** No terminal, na pasta do projeto:
+
+```bash
+pnpm setup:cron --test
+```
+
+O script pede o token do GitHub e a chave do cron-job.org, sem mostrar o que você digita. Ele confere o token no GitHub, cria a tarefa e mostra a próxima execução. Com `--test`, dispara uma edição na hora, igual à do cron, com custo de cerca de US$ 0,11. Se a tarefa já existir, o script atualiza a que já está lá. As credenciais também podem vir das variáveis `GITHUB_DISPATCH_TOKEN` e `CRONJOB_API_KEY`.
+
+<details>
+<summary>O que a tarefa faz</summary>
 
 | Campo | Valor |
 |---|---|
-| Title | `Diário da IA` |
 | URL | `https://api.github.com/repos/JuniorPescador/daily-newspaper-ai/actions/workflows/edition.yml/dispatches` |
-| Execution schedule | Todo dia às `05:00` |
-| Time zone (Advanced) | `America/Sao_Paulo` |
-| Request method (Advanced) | `POST` |
-| Request body (Advanced) | `{"ref":"main"}` |
-| Notifications | Avisar em caso de falha |
+| Horário | Todo dia às 05:00, fuso `America/Sao_Paulo` |
+| Método | `POST`, corpo `{"ref":"main"}` |
+| Cabeçalhos | `Accept: application/vnd.github+json`, `Authorization: Bearer <token>`, `X-GitHub-Api-Version: 2022-11-28`, `Content-Type: application/json`, `User-Agent: diario-ia-cron` |
+| Avisos | Por e-mail quando falha e quando volta a funcionar |
 
-Cabeçalhos (Advanced → Headers):
+</details>
 
-| Header | Valor |
-|---|---|
-| `Accept` | `application/vnd.github+json` |
-| `Authorization` | `Bearer <seu token>` |
-| `X-GitHub-Api-Version` | `2022-11-28` |
-| `Content-Type` | `application/json` |
-| `User-Agent` | `diario-ia-cron` |
-
-**3. Testar.** Use **Test run** no cron-job.org. A resposta certa é `204`, e em **Actions → Edition** aparece uma execução "workflow_dispatch". O teste gera uma edição de verdade, com custo de cerca de US$ 0,11.
-
-**Quando o token vencer**, o cron-job.org passa a receber `401` e avisa por e-mail. Crie um token novo pelo mesmo link e troque o valor do `Authorization`. Enquanto isso, o agendamento de reserva do GitHub continua gerando a edição, só que mais tarde.
+**Quando o token vencer**, o cron-job.org passa a receber `401` e avisa por e-mail. Crie um token novo pelo mesmo link e rode `pnpm setup:cron` de novo: ele troca o token na tarefa existente. Enquanto isso, o agendamento de reserva do GitHub continua gerando a edição, só que mais tarde.
 
 ## Custo estimado da IA
 
