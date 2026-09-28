@@ -1,18 +1,10 @@
 #!/usr/bin/env node
-// Generates one edition: collect feeds → curate (Claude, or keyword fallback) → write data/.
-// Usage: pnpm edition [--no-ai] [--if-missing]
-//   --if-missing: do nothing when today's edition already exists (used by the fallback cron).
-import { readFile } from 'node:fs/promises';
+// Generates one edition by hand. Usage: pnpm edition [--no-ai] [--if-missing]
+//   --if-missing: do nothing when today's edition already exists.
+// On Railway the edition runs by itself every day at 05:00 (see scripts/start.mjs).
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import Anthropic from '@anthropic-ai/sdk';
-import { collect } from '../src/collect.mjs';
-import { curateWithClaude, DEFAULT_MODEL } from '../src/curate.mjs';
-import { assembleEdition, sourceUrlsOf } from '../src/edition.mjs';
-import { fallbackCuration } from '../src/fallback.mjs';
-import { hasEditionOn, previousEdition, readIndex, saveEdition } from '../src/store.mjs';
-import { canonicalUrl } from '../src/text.mjs';
-import { editionSlot, localDate } from '../src/time.mjs';
+import { runEdition } from '../src/run-edition.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(root, 'data');
@@ -23,79 +15,12 @@ try {
   // .env is optional
 }
 
-function describeError(error) {
-  if (error instanceof Anthropic.AuthenticationError) return 'chave da API inválida';
-  if (error instanceof Anthropic.RateLimitError) return 'limite de uso da API atingido';
-  if (error instanceof Anthropic.APIError) return `erro da API (${error.status ?? 'sem status'}): ${error.message}`;
-  return error?.message ?? String(error);
-}
-
-async function main() {
-  const now = new Date();
-  const index = await readIndex(dataDir);
-  if (process.argv.includes('--if-missing') && hasEditionOn(index, localDate(now))) {
-    console.log(`A edição de ${localDate(now)} já saiu (${index[0].id}). Nada a fazer.`);
-    return;
-  }
-  const sources = JSON.parse(await readFile(path.join(root, 'sources.json'), 'utf8'));
-
-  console.log(`Coletando ${sources.length} fontes…`);
-  const { candidates, report } = await collect({ sources, now });
-  console.log(`${candidates.length} candidatos após filtro e deduplicação.`);
-  if (candidates.length === 0) throw new Error('nenhuma notícia coletada; a edição anterior foi mantida');
-
-  const currentId = editionSlot(now).id;
-  const previous = await previousEdition(dataDir, index, currentId);
-  const previousUrls = sourceUrlsOf(previous);
-
-  const model = process.env.CLAUDE_MODEL?.trim() || DEFAULT_MODEL;
-  const hasKey = Boolean(process.env.ANTHROPIC_API_KEY?.trim() || process.env.ANTHROPIC_AUTH_TOKEN?.trim());
-  const aiDisabled = process.argv.includes('--no-ai');
-
-  let raw;
-  let curation;
-  if (hasKey && !aiDisabled) {
-    console.log(`Curando com ${model}…`);
-    try {
-      const result = await curateWithClaude({ candidates, now, previousUrls, canonical: canonicalUrl, model });
-      raw = result.raw;
-      curation = { curated: true, model: result.model, usage: result.usage };
-      console.log(`Tokens: ${result.usage.input_tokens} entrada, ${result.usage.output_tokens} saída.`);
-    } catch (error) {
-      console.warn(`Curadoria com IA falhou (${describeError(error)}). Usando a edição automática.`);
-      curation = { curated: false, note: 'A curadoria por IA falhou nesta edição.' };
-    }
-  } else {
-    console.log(aiDisabled ? 'IA desativada (--no-ai).' : 'Sem ANTHROPIC_API_KEY: usando a edição automática.');
-    curation = { curated: false, note: 'Edição automática, sem resumos por IA.' };
-  }
-
-  let edition;
-  if (raw) {
-    try {
-      edition = assembleEdition({ raw, candidates, now, previousUrls, lastNumber: index[0]?.number ?? 0, lastId: index[0]?.id, curation, report });
-    } catch (error) {
-      console.warn(`Resposta da IA inutilizável (${error.message}). Usando a edição automática.`);
-      curation = { curated: false, note: 'A curadoria por IA falhou nesta edição.' };
-    }
-  }
-  edition ??= assembleEdition({
-    raw: fallbackCuration(candidates, { now }),
-    candidates,
-    now,
-    previousUrls,
-    lastNumber: index[0]?.number ?? 0,
-    lastId: index[0]?.id,
-    curation,
-    report,
-  });
-
-  await saveEdition(dataDir, edition, index);
-  const fresh = edition.stories.filter((story) => story.isNew).length;
-  console.log(`✓ ${edition.label} nº ${edition.number} (${edition.id}): ${edition.stories.length} notícias, ${fresh} novas.`);
-}
-
-main().catch((error) => {
+runEdition({
+  root,
+  dataDir,
+  ifMissing: process.argv.includes('--if-missing'),
+  noAi: process.argv.includes('--no-ai'),
+}).catch((error) => {
   console.error(`✗ ${error.message}`);
   process.exit(1);
 });
