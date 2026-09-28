@@ -2,8 +2,9 @@ name: Edition
 
 on:
   schedule:
-    # Daily at 05:17 in São Paulo (UTC-3): early, because scheduled runs can start late, and
-    # off the top of the hour to dodge the scheduler peak. Keep in sync with src/time.mjs.
+    # Fallback only. The edition is triggered at 05:00 São Paulo by cron-job.org through
+    # workflow_dispatch (see README). GitHub's scheduler often runs hours late, so this run
+    # skips when the day's edition already exists (--if-missing).
     - cron: '17 8 * * *'
   workflow_dispatch:
   push:
@@ -52,7 +53,8 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
-        run: pnpm edition
+          EDITION_FLAGS: ${{ github.event_name == 'schedule' && '--if-missing' || '' }}
+        run: pnpm edition $EDITION_FLAGS
 
       - name: Save edition history
         if: github.event_name != 'push'

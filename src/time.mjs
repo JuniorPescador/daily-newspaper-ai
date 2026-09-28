@@ -1,8 +1,10 @@
 export const TIME_ZONE = 'America/Sao_Paulo';
 
-// Keep in sync with the cron in .github/workflows/edition.yml ("17 8 * * *"): 05:17 in São Paulo.
+// The daily edition is triggered by cron-job.org at 05:00 São Paulo (08:00 UTC), which is punctual.
+// GitHub's own cron (.github/workflows/edition.yml, "17 8 * * *") is only a fallback: it often runs
+// hours late and skips when the day's edition already exists. The countdown targets 05:00.
 export const RUN_HOURS_UTC = [8];
-export const RUN_MINUTE_UTC = 17;
+export const RUN_MINUTE_UTC = 0;
 
 const SLOTS = [
   { from: 0, key: 'madrugada', label: 'Edição da madrugada' },
@@ -46,4 +48,10 @@ export function nextRunAt(date) {
     }
   }
   throw new Error('unreachable: no run found within 48h');
+}
+
+/** Calendar date in São Paulo, e.g. "2026-09-27". */
+export function localDate(date) {
+  const { year, month, day } = zonedParts(date);
+  return `${year}-${month}-${day}`;
 }

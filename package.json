@@ -12,6 +12,7 @@
     "edition": "node scripts/edition.mjs",
     "dev": "node scripts/serve.mjs",
     "build:site": "node scripts/build-site.mjs",
+    "setup:cron": "node scripts/setup-cron.mjs",
     "test": "node --test 'test/*.test.mjs'"
   },
   "dependencies": {

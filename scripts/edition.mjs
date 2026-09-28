@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Generates one edition: collect feeds → curate (Claude, or keyword fallback) → write data/.
-// Usage: pnpm edition [--no-ai]
+// Usage: pnpm edition [--no-ai] [--if-missing]
+//   --if-missing: do nothing when today's edition already exists (used by the fallback cron).
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,9 +10,9 @@ import { collect } from '../src/collect.mjs';
 import { curateWithClaude, DEFAULT_MODEL } from '../src/curate.mjs';
 import { assembleEdition, sourceUrlsOf } from '../src/edition.mjs';
 import { fallbackCuration } from '../src/fallback.mjs';
-import { previousEdition, readIndex, saveEdition } from '../src/store.mjs';
+import { hasEditionOn, previousEdition, readIndex, saveEdition } from '../src/store.mjs';
 import { canonicalUrl } from '../src/text.mjs';
-import { editionSlot } from '../src/time.mjs';
+import { editionSlot, localDate } from '../src/time.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(root, 'data');
@@ -31,6 +32,11 @@ function describeError(error) {
 
 async function main() {
   const now = new Date();
+  const index = await readIndex(dataDir);
+  if (process.argv.includes('--if-missing') && hasEditionOn(index, localDate(now))) {
+    console.log(`A edição de ${localDate(now)} já saiu (${index[0].id}). Nada a fazer.`);
+    return;
+  }
   const sources = JSON.parse(await readFile(path.join(root, 'sources.json'), 'utf8'));
 
   console.log(`Coletando ${sources.length} fontes…`);
@@ -38,7 +44,6 @@ async function main() {
   console.log(`${candidates.length} candidatos após filtro e deduplicação.`);
   if (candidates.length === 0) throw new Error('nenhuma notícia coletada; a edição anterior foi mantida');
 
-  const index = await readIndex(dataDir);
   const currentId = editionSlot(now).id;
   const previous = await previousEdition(dataDir, index, currentId);
   const previousUrls = sourceUrlsOf(previous);
