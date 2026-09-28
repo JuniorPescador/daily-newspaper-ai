@@ -1,11 +1,27 @@
 ---
 uid: feat-005
-status: in-progress
+status: done
 priority: normal
 scheduled: 2026-09-27
+completed: 2026-09-27
 timeEstimate: 45
 pomodoros: 0
 firstStartedAt: 2026-09-28T00:04:21.155394Z
+filesTouched:
+- .github/workflows/edition.yml
+- README.md
+- docs/TaskNotes/Tasks/FEAT-005-daily-edition-via-cron-job-org-github-cron-as-fallback.md
+- package.json
+- scripts/edition.mjs
+- scripts/setup-cron.mjs
+- src/store.mjs
+- src/time.mjs
+- test/edition.test.mjs
+- test/setup-cron.test.mjs
+commits:
+- 8484da9
+- d04ae66
+- '1877572'
 tags:
 - task
 - feat
@@ -25,7 +41,7 @@ Mirror of GitHub issue JuniorPescador/daily-newspaper-ai#17.
 - [x] Workflow: schedule runs with --if-missing
 - [x] Countdown at 05:00
 - [x] README setup steps
-- [ ] PR + operator setup + test run (Closes #17)
+- [x] PR + operator setup + test run (Closes #17)
 
 ## Related
 
