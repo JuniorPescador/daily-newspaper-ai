@@ -40,24 +40,63 @@ export function buildJob(githubToken) {
   };
 }
 
+const CANCELLED = 'cancelado; nada foi alterado.';
+
+/** Reads one line without echoing it. Raw key-by-key reading keeps the question on screen while pasting. */
 function askHidden(question) {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true });
-    process.stdout.write(question);
-    // Swallow the echo so the secret never shows on screen.
-    rl._writeToOutput = () => {};
-    rl.question('', (answer) => {
-      rl.close();
-      process.stdout.write('\n');
-      resolve(answer.trim());
+  const { stdin, stdout } = process;
+  stdout.write(question);
+  if (!stdin.isTTY) {
+    // Piped input (scripts, tests): read a plain line.
+    return new Promise((resolve, reject) => {
+      const rl = readline.createInterface({ input: stdin });
+      let answered = false;
+      rl.once('line', (line) => {
+        answered = true;
+        rl.close();
+        stdout.write('\n');
+        resolve(line.trim());
+      });
+      rl.once('close', () => answered || reject(new Error(CANCELLED)));
     });
+  }
+  return new Promise((resolve, reject) => {
+    let value = '';
+    const finish = (error) => {
+      stdin.off('data', onData);
+      stdin.setRawMode(false);
+      stdin.pause();
+      stdout.write('\n');
+      if (error) reject(error);
+      else resolve(value.replace(/\x1b\[20[01]~/g, '').trim());
+    };
+    const onData = (chunk) => {
+      for (const char of chunk) {
+        if (char === '\r' || char === '\n') return finish();
+        if (char === '\u0003' || char === '\u0004') return finish(new Error(CANCELLED)); // Ctrl-C, Ctrl-D
+        if (char === '\u007f' || char === '\b') value = value.slice(0, -1);
+        else value += char;
+      }
+    };
+    stdin.setRawMode(true);
+    stdin.setEncoding('utf8');
+    stdin.resume();
+    stdin.on('data', onData);
   });
 }
 
-async function credential(name, question) {
-  const value = process.env[name]?.trim() || (await askHidden(question));
-  if (!value) throw new Error(`faltou ${name}`);
-  return value;
+const GITHUB_TOKEN = /^(github_pat_|ghp_)/;
+
+async function credential(name, question, looksRight, hint) {
+  if (process.env[name]?.trim()) return process.env[name].trim();
+  for (;;) {
+    const value = await askHidden(question);
+    if (value && looksRight(value)) {
+      console.log(`  ✓ recebida (${value.length} caracteres)`);
+      return value;
+    }
+    console.log(value ? `  ✗ ${hint} Tente de novo.` : '  ✗ Nada foi colado. Tente de novo.');
+  }
 }
 
 async function cronjob(apiKey, method, path, body) {
@@ -91,8 +130,20 @@ function brasilia(unixSeconds) {
 
 async function main() {
   const test = process.argv.includes('--test');
-  const githubToken = await credential('GITHUB_DISPATCH_TOKEN', 'Token do GitHub (github_pat_…): ');
-  const apiKey = await credential('CRONJOB_API_KEY', 'Chave de API do cron-job.org: ');
+  console.log('Cole cada chave quando for pedida e aperte Enter. Nada aparece na tela enquanto você cola.\n');
+  const githubToken = await credential(
+    'GITHUB_DISPATCH_TOKEN',
+    '1 de 2 · Chave do GITHUB (começa com github_pat_): ',
+    (value) => GITHUB_TOKEN.test(value),
+    'Essa não parece a chave do GitHub: ela começa com github_pat_.',
+  );
+  const apiKey = await credential(
+    'CRONJOB_API_KEY',
+    '2 de 2 · Chave do CRON-JOB.ORG (a de Settings → API): ',
+    (value) => !GITHUB_TOKEN.test(value),
+    'Essa é a chave do GitHub de novo. Agora cole a do cron-job.org.',
+  );
+  console.log('');
 
   // The token must see this repo's workflow; this call starts nothing.
   const check = await github(githubToken, 'GET', `https://api.github.com/repos/${REPOSITORY}/actions/workflows/edition.yml`);
