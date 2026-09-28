@@ -1205,6 +1205,19 @@ input {
   margin-top: 24px;
 }
 
+.hot__col {
+  position: relative;
+}
+
+/* Column rule centered in the gap; skips hidden (empty) columns. */
+.hot__col:not([hidden]) ~ .hot__col::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  left: -22px;
+  border-left: 1px solid var(--rule);
+}
+
 .hot__title {
   display: flex;
   align-items: baseline;
@@ -1712,6 +1725,9 @@ html.with-depth .grid > .story:hover::before {
   .hot__cols {
     grid-template-columns: 1fr;
     gap: 32px;
+  }
+  .hot__col:not([hidden]) ~ .hot__col::before {
+    display: none;
   }
 }
 
