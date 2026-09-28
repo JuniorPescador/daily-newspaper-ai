@@ -4,6 +4,28 @@ const TIME_ZONE = 'America/Sao_Paulo';
 const EDITION_ID = /^\d{4}-\d{2}-\d{2}-\d{2}h$/;
 const CATEGORY_LABEL = { novidades: 'Novidades', mercado: 'Mercado', achados: 'Achados' };
 const ARCHIVE_SHOWN = 12;
+const PERIOD_LABEL = { daily: 'hoje', weekly: 'na semana', monthly: 'no mês' };
+// Hugging Face pipeline tags, in plain words; anything else shows as the tag itself.
+const TASK_LABEL = {
+  'text-generation': 'gera texto',
+  'image-text-to-text': 'visão e texto',
+  'audio-text-to-text': 'áudio e texto',
+  'any-to-any': 'multimodal',
+  'text-to-image': 'gera imagem',
+  'image-to-image': 'edita imagem',
+  'text-to-video': 'gera vídeo',
+  'image-to-video': 'imagem para vídeo',
+  'text-to-speech': 'gera voz',
+  'text-to-audio': 'gera áudio',
+  'automatic-speech-recognition': 'transcreve fala',
+  'feature-extraction': 'embeddings',
+  'sentence-similarity': 'embeddings',
+  'text-classification': 'classifica texto',
+  'text-ranking': 'ranqueia textos',
+  'image-classification': 'classifica imagem',
+  'object-detection': 'detecta objetos',
+  robotics: 'robótica',
+};
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const $ = (selector) => document.querySelector(selector);
@@ -52,6 +74,8 @@ function capitalize(text) {
 const longDate = new Intl.DateTimeFormat('pt-BR', { timeZone: TIME_ZONE, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 const shortDate = new Intl.DateTimeFormat('pt-BR', { timeZone: TIME_ZONE, weekday: 'short', day: '2-digit', month: 'short' });
 const fullDateTime = new Intl.DateTimeFormat('pt-BR', { timeZone: TIME_ZONE, dateStyle: 'long', timeStyle: 'short' });
+const compactNumber = new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 });
+const plainNumber = new Intl.NumberFormat('pt-BR');
 
 async function loadJson(url) {
   const response = await fetch(url, { cache: 'no-cache' });
@@ -406,6 +430,68 @@ function setupControls(showNew) {
   window.addEventListener('resize', moveIndicator);
 }
 
+/* ---------- Em alta ---------- */
+
+function slashName(name) {
+  const slash = name.indexOf('/');
+  return el('span', { class: 'hot__name' }, [el('span', { class: 'hot__owner', text: name.slice(0, slash + 1) }), name.slice(slash + 1)]);
+}
+
+/** One ranked entry: link, optional body, then a line of facts. */
+function hotItem(url, head, body, facts) {
+  const href = safeHref(url);
+  if (!href) return null;
+  return el('li', { class: 'hot__item' }, [
+    el('a', { class: 'hot__link', href, target: '_blank', rel: 'noopener noreferrer' }, [...head, arrowIcon()]),
+    ...body,
+    el('p', { class: 'hot__meta', text: facts.filter(Boolean).join(' · ') }),
+  ]);
+}
+
+/** Claude's note in PT-BR; without it, the item's own description (in its original language). */
+function hotNote(note, fallback) {
+  if (note) return el('p', { class: 'hot__note', text: note });
+  return fallback ? el('p', { class: 'hot__note hot__note--raw', text: fallback }) : null;
+}
+
+function renderHot(trending) {
+  const section = $('#hot');
+  section.hidden = !trending;
+  if (!trending) return;
+
+  const lists = {
+    repos: (trending.repos ?? []).map((repo) =>
+      hotItem(repo.url, [slashName(repo.name)], [hotNote(repo.note, repo.description)], [
+        repo.language,
+        `${compactNumber.format(repo.stars)} estrelas`,
+        repo.gained ? `+${plainNumber.format(repo.gained)} ${PERIOD_LABEL[repo.period] ?? ''}`.trim() : null,
+      ]),
+    ),
+    models: (trending.models ?? []).map((model) =>
+      hotItem(model.url, [slashName(model.name)], [hotNote(model.note)], [
+        TASK_LABEL[model.task] ?? model.task,
+        `${compactNumber.format(model.likes)} curtidas`,
+        model.downloads ? `${compactNumber.format(model.downloads)} downloads` : null,
+      ]),
+    ),
+    posts: (trending.posts ?? []).map((post) =>
+      hotItem(
+        post.url,
+        [el('span', { class: 'hot__name', text: post.author }), el('span', { class: 'hot__handle', text: `@${post.handle}` })],
+        [el('blockquote', { class: 'hot__quote', text: post.text }), hotNote(post.note)],
+        [`${compactNumber.format(post.likes)} curtidas`, ago(post.publishedAt)],
+      ),
+    ),
+  };
+  for (const [key, items] of Object.entries(lists)) {
+    const list = $(`#hot-${key}`);
+    list.replaceChildren(...items.filter(Boolean));
+    list.closest('.hot__col').hidden = list.children.length === 0;
+  }
+  if (!trending.curated) $('#hot-hint').append(' Lista automática, sem comentários por IA.');
+  for (const column of section.querySelectorAll('.hot__col:not([hidden])')) reveal(column);
+}
+
 function renderArchive(index, currentId) {
   const section = $('.archive');
   const entries = index.slice(0, ARCHIVE_SHOWN);
@@ -429,7 +515,9 @@ function renderArchive(index, currentId) {
 function renderFooter(edition) {
   const ok = edition.stats.list?.filter((source) => source.ok && source.count > 0).map((source) => source.name) ?? [];
   const curation = edition.curated ? `Curadoria e resumos: ${edition.model}.` : 'Edição automática, sem resumos por IA.';
-  $('#footer-sources').textContent = `${curation} Fontes com notícias nesta edição (${ok.length} de ${edition.stats.sources}): ${ok.join(', ')}.`;
+  const hot = edition.trending?.sources?.filter((source) => source.ok).map((source) => source.name) ?? [];
+  const hotText = hot.length ? ` Em alta: ${hot.join(', ')}.` : '';
+  $('#footer-sources').textContent = `${curation} Fontes com notícias nesta edição (${ok.length} de ${edition.stats.sources}): ${ok.join(', ')}.${hotText}`;
 }
 
 function renderNotice(title, body) {
@@ -469,6 +557,7 @@ function render(edition, index, isLatest, requestedAi) {
   if (requestedAi && aiMeta.has(requestedAi)) state.ai = requestedAi;
   syncAiUi();
   applyFilters(false);
+  renderHot(edition.trending);
   renderArchive(index, edition.id);
   renderFooter(edition);
 

@@ -18,7 +18,7 @@ const xml = new XMLParser({
   isArray: (name) => ['item', 'entry', 'link'].includes(name),
 });
 
-async function fetchText(url, accept) {
+export async function fetchText(url, accept) {
   let lastError;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
