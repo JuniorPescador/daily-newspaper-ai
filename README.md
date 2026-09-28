@@ -67,6 +67,8 @@ Cada edição envia cerca de 12 mil tokens (as ~120 notícias candidatas) e rece
 
 O consumo real de cada edição fica em `usage`, dentro do JSON da edição.
 
+A seção "Em alta" faz uma chamada a mais, bem menor: cerca de 4 mil tokens de entrada e até 2 mil de saída. Com o `claude-sonnet-5`, isso dá uns US$ 0,02 por edição, perto de US$ 0,70 por mês. O consumo fica em `trending.usage`.
+
 ## Limitações
 
 - As edições ficam no volume do Railway. Se o volume for apagado, o arquivo de edições se perde. As edições de 25 a 28/09 geradas pelo GitHub continuam guardadas no branch `data`.
