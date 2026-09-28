@@ -240,7 +240,7 @@ function renderTicker(stories) {
   const items = stories.map((story) => el('span', { class: 'ticker__item', text: story.title }));
   // Two copies make the -50% loop seamless.
   track.replaceChildren(...items, ...items.map((item) => item.cloneNode(true)));
-  track.style.setProperty('--ticker-duration', `${Math.max(40, stories.length * 7)}s`);
+  track.style.setProperty('--ticker-duration', `${Math.max(60, stories.length * 10)}s`);
 }
 
 function renderEditorial(edition) {
