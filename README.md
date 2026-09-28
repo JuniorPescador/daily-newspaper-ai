@@ -38,7 +38,7 @@ Para usar a IA localmente, crie um `.env` a partir do `.env.example`.
 
 ## Railway
 
-O serviço `web` do projeto **daily-newspaper-ai** roda `node scripts/start.mjs` (definido em `railway.json`). Ele faz três coisas:
+O serviço `web` do projeto **daily-newspaper-ai** roda `node scripts/start.mjs` (definido em `.railway/railway.ts`). Ele faz três coisas:
 
 1. Serve `site/` e as edições (`/data/`), com checagem de saúde em `/healthz`.
 2. Gera a edição todo dia às 05:00 de Brasília. O horário fica em `src/time.mjs`.
@@ -52,6 +52,8 @@ O serviço `web` do projeto **daily-newspaper-ai** roda `node scripts/start.mjs`
 | `PORT` | Definida pelo Railway. |
 
 **Deploy.** Com o serviço ligado ao repositório no GitHub (Settings → Source), todo merge na `main` publica sozinho. Sem essa ligação, publique com `railway up`.
+
+**Configuração do serviço.** Comando de início, checagem de saúde, política de reinício, volume e variáveis ficam em `.railway/railway.ts`. O Railway não lê esse arquivo no deploy. Depois de mudar, rode `railway config plan` para ver o que muda e `railway config apply` para aplicar. O que sair do arquivo é apagado no `apply`. As variáveis aparecem como `preserve()`: o valor fica guardado no Railway, fora do git.
 
 **Gerar uma edição fora do horário.** Abra um terminal no serviço com `railway ssh` e rode `node scripts/edition.mjs`.
 
