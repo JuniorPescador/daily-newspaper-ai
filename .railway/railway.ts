@@ -18,8 +18,10 @@ export default defineRailway(() => {
     start: "node scripts/start.mjs",
     healthcheck: "/healthz",
     healthcheckTimeout: 60,
+    // Restart policy: ON_FAILURE, up to 5 retries. ON_FAILURE is Railway's
+    // default and is stored as null, so writing restartPolicyType here would
+    // show up as a change on every `railway config plan`.
     deploy: {
-      restartPolicyType: "ON_FAILURE",
       restartPolicyMaxRetries: 5,
     },
     replicas: { sfo: 1 },
