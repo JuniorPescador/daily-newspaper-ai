@@ -1,11 +1,25 @@
 ---
 uid: chore-005
-status: in-progress
+status: done
 priority: high
 scheduled: 2026-09-28
+completed: 2026-09-28
 timeEstimate: 60
 pomodoros: 0
 firstStartedAt: 2026-09-28T12:22:56.653575Z
+filesTouched:
+- .railway/railway.ts
+- README.md
+- docs/TaskNotes/Tasks/CHORE-005-migrate-railway-config-to-railway-railway-ts-iac.md
+- package.json
+- pnpm-lock.yaml
+- pnpm-workspace.yaml
+- railway.json
+commits:
+- 131c4c1
+- 3a21b89
+- d39fd04
+- da105ed
 tags:
 - task
 - chore
@@ -28,7 +42,7 @@ Config as Code (railway.json) stops being read on 2026-12-01. Keep start command
 - [x] PR #29 with Closes #28
 - [x] config apply (redeploy 1554d74a) + railway up from branch (a3265537); no custom Config File path was set
 - [x] Verify /healthz ok + logs "Próxima edição" (2026-09-28 09:37 -03)
-- [ ] Merge PR #29 (closes #28), then `tn done CHORE-005`
+- [x] Merge PR #29 (closes #28), then `tn done CHORE-005`
 
 ## Notes
 - `railway config migrate` drops the restart policy and declares no volume/variables; the file was built from `railway config pull`.
