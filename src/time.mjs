@@ -1,14 +1,13 @@
 export const TIME_ZONE = 'America/Sao_Paulo';
 
-// The daily edition is triggered by cron-job.org at 05:00 São Paulo (08:00 UTC), which is punctual.
-// GitHub's own cron (.github/workflows/edition.yml, "17 8 * * *") is only a fallback: it often runs
-// hours late and skips when the day's edition already exists. The countdown targets 05:00.
+// The edition runs every day at 05:00 São Paulo (08:00 UTC) inside the Railway process
+// (scripts/start.mjs). The countdown on the page uses the same time.
 export const RUN_HOURS_UTC = [8];
 export const RUN_MINUTE_UTC = 0;
 
 const SLOTS = [
   { from: 0, key: 'madrugada', label: 'Edição da madrugada' },
-  // The daily run starts at 05:17, so the morning edition starts at 5.
+  // The daily run is at 05:00, so the morning edition starts at 5.
   { from: 5, key: 'manha', label: 'Edição da manhã' },
   { from: 12, key: 'tarde', label: 'Edição da tarde' },
   { from: 18, key: 'noite', label: 'Edição da noite' },
@@ -45,6 +44,20 @@ export function nextRunAt(date) {
         Date.UTC(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate() + dayOffset, hour, RUN_MINUTE_UTC),
       );
       if (candidate > base) return candidate;
+    }
+  }
+  throw new Error('unreachable: no run found within 48h');
+}
+
+/** Latest scheduled run at or before `date`. */
+export function previousRunAt(date) {
+  const base = new Date(date);
+  for (let dayOffset = 0; dayOffset >= -1; dayOffset -= 1) {
+    for (const hour of [...RUN_HOURS_UTC].reverse()) {
+      const candidate = new Date(
+        Date.UTC(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate() + dayOffset, hour, RUN_MINUTE_UTC),
+      );
+      if (candidate <= base) return candidate;
     }
   }
   throw new Error('unreachable: no run found within 48h');
