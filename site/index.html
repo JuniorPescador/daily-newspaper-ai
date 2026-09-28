@@ -120,6 +120,27 @@
       </section>
       <p class="empty" id="empty" hidden>Nenhuma notícia nesse filtro.</p>
 
+      <section class="hot" id="hot" aria-labelledby="hot-title" hidden>
+        <div class="hot__head">
+          <h2 class="section-label" id="hot-title">Em alta</h2>
+          <p class="hot__hint" id="hot-hint">O que a comunidade de IA está construindo e discutindo agora.</p>
+        </div>
+        <div class="hot__cols">
+          <section class="hot__col" aria-labelledby="hot-repos-title">
+            <h3 class="hot__title" id="hot-repos-title">Repositórios <span>GitHub</span></h3>
+            <ol class="hot__list" id="hot-repos"></ol>
+          </section>
+          <section class="hot__col" aria-labelledby="hot-models-title">
+            <h3 class="hot__title" id="hot-models-title">Modelos <span>Hugging Face</span></h3>
+            <ol class="hot__list" id="hot-models"></ol>
+          </section>
+          <section class="hot__col" aria-labelledby="hot-posts-title">
+            <h3 class="hot__title" id="hot-posts-title">Posts <span>Bluesky</span></h3>
+            <ol class="hot__list" id="hot-posts"></ol>
+          </section>
+        </div>
+      </section>
+
       <section class="archive" aria-labelledby="archive-title">
         <h2 class="section-label" id="archive-title">Edições anteriores</h2>
         <ol class="archive__list" id="archive"></ol>
