@@ -1,11 +1,21 @@
-// "Mapa do dia": a 3D graph of the edition. Stories are dots colored by category and grouped by it;
-// AIs are larger hubs; each story links to the AIs it mentions. Three.js is loaded on demand.
+// "Mapa do dia": the edition as a glowing neural network. Stories are nodes colored by category and
+// grouped by it; AIs are larger hubs; each story links to the AIs it mentions and signals run along
+// those links; faint synapses join nearby stories. Colors come from the section's --nm-* tokens, so
+// the map follows the light and dark themes (bloom and additive light only in the dark one).
+// Three.js is loaded on demand.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { cssVar, finePointer, isDarkTheme, lerp, onPaletteChange, reducedMotion, toRgb, watchVisibility } from './shared.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { cssVar, finePointer, lerp, onPaletteChange, reducedMotion, toRgb, watchVisibility } from './shared.js';
 
 const CATEGORY_LABEL = { novidades: 'Novidades', mercado: 'Mercado', achados: 'Achados' };
 const ANCHORS = { novidades: [-4.2, 1.4, 0.6], mercado: [4.2, 1.2, -0.4], achados: [0, -3.6, 1.2] };
+const SYNAPSES_PER_STORY = 3;
+// Signals cross a link in about four seconds.
+const SIGNAL_SPEED = 0.24;
 
 function threeColor(css) {
   const [r, g, b] = toRgb(css);
@@ -30,14 +40,17 @@ function buildSection() {
   const section = el('section', 'fx-map');
   section.setAttribute('aria-labelledby', 'fx-map-title');
   const head = el('div', 'fx-map__head');
-  const title = el('h2', 'section-label', 'Mapa do dia');
+  const pill = el('span', 'fx-map__pill', 'Mapa do dia');
+  const title = el('h2', 'fx-map__title', 'Rede neural da edição');
   title.id = 'fx-map-title';
   const hint = el(
     'p',
     'fx-map__hint',
-    finePointer.matches ? 'Cada ponto é uma notícia, ligada às IAs que ela cita. Arraste para girar; clique para ler.' : 'Cada ponto é uma notícia, ligada às IAs que ela cita. Toque para ler.',
+    finePointer.matches
+      ? 'Cada ponto é uma notícia, ligada às IAs que ela cita; os sinais correm por essas ligações. Arraste para girar; clique para ler.'
+      : 'Cada ponto é uma notícia, ligada às IAs que ela cita; os sinais correm por essas ligações. Toque para ler.',
   );
-  head.append(title, hint);
+  head.append(pill, title, hint);
   const stage = el('div', 'fx-map__stage');
   const canvas = el('canvas');
   canvas.setAttribute('aria-hidden', 'true');
@@ -46,12 +59,13 @@ function buildSection() {
   tip.hidden = true;
   stage.append(canvas, labels, tip);
   const legend = el('div', 'fx-map__legend');
-  for (const [key, label] of Object.entries(CATEGORY_LABEL)) {
-    const item = el('span', `cat cat--${key}`, label);
-    legend.append(item);
-  }
+  for (const [key, label] of Object.entries(CATEGORY_LABEL)) legend.append(el('span', `cat cat--${key}`, label));
+  legend.append(el('span', 'fx-map__legend-hub', 'IAs citadas'));
   section.append(head, stage, legend);
-  document.querySelector('.front').after(section);
+  // It sits right before "Filtrar por IA": clicking a hub selects that AI there.
+  const filter = document.querySelector('#ai-filter');
+  if (filter) filter.before(section);
+  else document.querySelector('.front').after(section);
   return { section, stage, canvas, labels, tip };
 }
 
@@ -126,6 +140,26 @@ function layout(stories, ais) {
   return { nodes, edges, position };
 }
 
+/** Pairs of story nodes joined by a synapse: each story to its nearest neighbors, once per pair. */
+function synapses(nodes, position) {
+  const stories = nodes.flatMap((node, index) => (node.kind === 'story' ? [index] : []));
+  const pairs = new Map();
+  for (const from of stories) {
+    const nearest = stories
+      .filter((to) => to !== from)
+      .map((to) => [to, Math.hypot(...position[from].map((value, axis) => value - position[to][axis]))])
+      .sort((a, b) => a[1] - b[1])
+      .slice(0, SYNAPSES_PER_STORY);
+    for (const [to] of nearest) pairs.set(from < to ? `${from}:${to}` : `${to}:${from}`, [from, to]);
+  }
+  return [...pairs.values()];
+}
+
+/** Linear luminance of a THREE.Color: how bright the card behind the network is. */
+function luminance(color) {
+  return 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+}
+
 function haloTexture() {
   const size = 128;
   const canvas = document.createElement('canvas');
@@ -160,14 +194,20 @@ export function startMap(edition) {
   const stories = edition.stories ?? [];
   const ais = edition.ais ?? [];
   if (stories.length === 0) return;
-  const { stage, canvas, labels, tip } = buildSection();
+  const { section, stage, canvas, labels, tip } = buildSection();
 
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
-  renderer.setClearColor(0x000000, 0);
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
   camera.position.set(0, 2, 15.5);
+
+  // Bloom makes the dark network glow; on a light card it would only wash it out.
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.6, 0.4, 0.22);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
 
   const controls = new OrbitControls(camera, canvas);
   controls.enableZoom = false;
@@ -186,51 +226,83 @@ export function startMap(edition) {
 
   const { nodes, edges, position } = layout(stories, ais);
   const halo = haloTexture();
-  const sphere = new THREE.SphereGeometry(1, 28, 18);
-  const aiById = new Map(ais.map((ai) => [ai.id, ai]));
+  const sphere = new THREE.SphereGeometry(1, 24, 16);
+  const sprite = () => new THREE.Sprite(new THREE.SpriteMaterial({ map: halo, transparent: true, depthWrite: false }));
+
+  // Soft colored light far behind the network.
+  const nebulae = [
+    { at: [7, 4.5, -7], size: 24, token: 'glow-a' },
+    { at: [-8, -4, -6], size: 22, token: 'glow-b' },
+  ].map(({ at, size, token }) => {
+    const glow = sprite();
+    glow.position.fromArray(at);
+    glow.scale.setScalar(size);
+    glow.userData.token = token;
+    scene.add(glow);
+    return glow;
+  });
 
   const nodeObjects = nodes.map((node, index) => {
-    const radius = node.kind === 'ai' ? 0.5 : 0.16 + (node.story.importance ?? 3) * 0.045;
-    const material = new THREE.MeshBasicMaterial({ transparent: true });
-    const mesh = new THREE.Mesh(sphere, material);
+    const radius = node.kind === 'ai' ? 0.36 : 0.1 + (node.story.importance ?? 3) * 0.035;
+    const mesh = new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({ transparent: true }));
     mesh.position.fromArray(position[index]);
-    mesh.userData = { node, radius, scale: 0, targetScale: 1, opacity: 1 };
+    mesh.userData = { node, radius, scale: 0, targetScale: 1, opacity: 1, glowOpacity: 0.8 };
     mesh.scale.setScalar(0.0001);
-    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: halo, transparent: true, depthWrite: false }));
-    glow.scale.setScalar(radius * (node.kind === 'ai' ? 7 : 6));
+    // The halo is a child, so it grows with the node: its size is relative to the node's radius.
+    const glow = sprite();
+    glow.userData.size = node.kind === 'ai' ? 5 : 4.2;
+    glow.scale.setScalar(glow.userData.size);
     mesh.add(glow);
     scene.add(mesh);
     return { mesh, glow };
   });
 
-  // One line set per AI, drawn in that AI's color.
-  const lineGroups = new Map();
+  // Faint synapses between nearby stories make the graph read as a network.
+  const synapsePairs = synapses(nodes, position);
+  const synapseGeometry = new THREE.BufferGeometry();
+  synapseGeometry.setAttribute('position', new THREE.Float32BufferAttribute(synapsePairs.flatMap(([from, to]) => [...position[from], ...position[to]]), 3));
+  const synapseLines = new THREE.LineSegments(synapseGeometry, new THREE.LineBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+  synapseLines.userData.opacity = 0;
+  scene.add(synapseLines);
+
+  // Links and signals, one set per AI so a selected AI can light up its own.
+  const byAi = new Map();
   for (const edge of edges) {
-    if (!lineGroups.has(edge.ai)) lineGroups.set(edge.ai, []);
-    lineGroups.get(edge.ai).push(...position[edge.from], ...position[edge.to]);
+    if (!byAi.has(edge.ai)) byAi.set(edge.ai, []);
+    byAi.get(edge.ai).push(edge);
   }
-  const lines = [...lineGroups.entries()].map(([aiId, points]) => {
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
-    const material = new THREE.LineBasicMaterial({ transparent: true, opacity: 0 });
-    const segments = new THREE.LineSegments(geometry, material);
-    segments.userData = { aiId, opacity: 0 };
-    scene.add(segments);
-    return segments;
+  const linkGroups = [...byAi.entries()].map(([aiId, group]) => {
+    const points = group.flatMap((edge) => [...position[edge.from], ...position[edge.to]]);
+    const lineGeometry = new THREE.BufferGeometry();
+    lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+    lineGeometry.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(points.length), 3));
+    const lines = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0, depthWrite: false }));
+    scene.add(lines);
+    const signalGeometry = new THREE.BufferGeometry();
+    signalGeometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(group.length * 3), 3));
+    const signals = new THREE.Points(signalGeometry, new THREE.PointsMaterial({ map: halo, size: 0.45, transparent: true, opacity: 0, depthWrite: false }));
+    scene.add(signals);
+    // Each signal starts somewhere along its link so they don't move in lockstep.
+    return { aiId, edges: group, lines, signals, phases: group.map((_, index) => (index * 0.618) % 1), opacity: 0 };
   });
 
-  // Dust for depth.
-  const dustPositions = [];
-  for (let i = 0; i < 420; i += 1) {
-    const radius = 9 + Math.random() * 9;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    dustPositions.push(radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi) * 0.7, radius * Math.sin(phi) * Math.sin(theta));
-  }
-  const dustGeometry = new THREE.BufferGeometry();
-  dustGeometry.setAttribute('position', new THREE.Float32BufferAttribute(dustPositions, 3));
-  const dust = new THREE.Points(dustGeometry, new THREE.PointsMaterial({ size: 0.06, transparent: true, opacity: 0.5, depthWrite: false }));
-  scene.add(dust);
+  // Star field in two layers: fine dust and a few brighter sparks that twinkle.
+  const starLayer = (count, size, map) => {
+    const points = [];
+    for (let i = 0; i < count; i += 1) {
+      const radius = 9 + Math.random() * 9;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      points.push(radius * Math.sin(phi) * Math.cos(theta), radius * Math.cos(phi) * 0.7, radius * Math.sin(phi) * Math.sin(theta));
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+    const layer = new THREE.Points(geometry, new THREE.PointsMaterial({ size, map, transparent: true, depthWrite: false }));
+    scene.add(layer);
+    return layer;
+  };
+  const dust = starLayer(620, 0.04, null);
+  const sparks = starLayer(90, 0.28, halo);
 
   // HTML labels for the AI hubs.
   const hubLabels = nodeObjects
@@ -239,29 +311,62 @@ export function startMap(edition) {
       const ai = mesh.userData.node.ai;
       const label = el('span', 'fx-map__label');
       label.style.setProperty('--ai', ai.color);
+      // Hidden until the first frame places it next to its hub.
+      label.style.opacity = '0';
       label.append(logoMask(ai), document.createTextNode(`${ai.label} · ${ai.count}`));
       labels.append(label);
       return { mesh, label };
     });
 
   let selectedAi = document.documentElement.dataset.ai ?? null;
-  let dark = false;
+  let dark = true;
   const applyPalette = () => {
-    const categories = Object.fromEntries(Object.keys(CATEGORY_LABEL).map((key) => [key, threeColor(cssVar(`--cat-${key}`))]));
-    const ink = threeColor(cssVar('--ink'));
-    const muted = threeColor(cssVar('--muted'));
-    dark = isDarkTheme();
+    const token = (name) => threeColor(cssVar(`--nm-${name}`, section));
+    const card = token('card');
+    dark = luminance(card) < 0.2;
+    const blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending;
+    const white = new THREE.Color(1, 1, 1);
+    const link = token('link');
+    const categories = Object.fromEntries(Object.keys(CATEGORY_LABEL).map((key) => [key, token(key)]));
+
+    renderer.setClearColor(card, 1);
+    bloom.enabled = dark;
+    for (const glow of nebulae) {
+      glow.material.color.copy(token(glow.userData.token));
+      glow.material.blending = blending;
+      glow.material.opacity = dark ? 0.08 : 0.4;
+    }
     for (const { mesh, glow } of nodeObjects) {
       const { node } = mesh.userData;
-      const color = node.kind === 'ai' ? threeColor(node.ai.color) : categories[node.story.category] ?? ink;
-      mesh.material.color.copy(color);
-      glow.material.color.copy(color);
-      glow.material.opacity = dark ? 0.55 : 0.32;
-      glow.material.blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending;
+      const base = node.kind === 'ai' ? threeColor(node.ai.color) : categories[node.story.category] ?? link;
+      mesh.userData.base = base;
+      // Dark: a white-hot core inside a colored halo. Light: solid color with a soft tint around it.
+      mesh.material.color.copy(dark ? base.clone().lerp(white, node.kind === 'ai' ? 0.2 : 0.3) : base);
+      glow.material.color.copy(base);
+      glow.material.blending = blending;
+      mesh.userData.glowOpacity = dark ? 0.5 : 0.6;
+      // Without additive light the halo has to be wider to read as a glow.
+      glow.userData.size = node.kind === 'ai' ? (dark ? 5 : 6.5) : dark ? 4.2 : 5.6;
     }
-    for (const segments of lines) segments.material.color.copy(threeColor(aiById.get(segments.userData.aiId)?.color ?? cssVar('--ink')));
-    dust.material.color.copy(muted);
-    dust.material.opacity = dark ? 0.55 : 0.4;
+    for (const group of linkGroups) {
+      const colors = group.lines.geometry.getAttribute('color');
+      group.edges.forEach((edge, index) => {
+        const from = nodeObjects[edge.from].mesh.userData.base;
+        colors.setXYZ(index * 2, from.r, from.g, from.b);
+        colors.setXYZ(index * 2 + 1, link.r, link.g, link.b);
+      });
+      colors.needsUpdate = true;
+      group.lines.material.blending = blending;
+      group.signals.material.color.copy(token('pulse'));
+      group.signals.material.blending = blending;
+    }
+    synapseLines.material.color.copy(token('synapse'));
+    synapseLines.material.blending = blending;
+    for (const layer of [dust, sparks]) {
+      layer.material.color.copy(token('star'));
+      layer.material.blending = blending;
+    }
+    dust.material.opacity = dark ? 0.45 : 0.35;
     selectedAi = document.documentElement.dataset.ai ?? null;
   };
   applyPalette();
@@ -270,6 +375,8 @@ export function startMap(edition) {
   const resize = () => {
     const { width, height } = stage.getBoundingClientRect();
     renderer.setSize(width, height, false);
+    composer.setPixelRatio(renderer.getPixelRatio());
+    composer.setSize(width, height);
     camera.aspect = width / Math.max(1, height);
     camera.updateProjectionMatrix();
     // Narrow stages (phones) need the camera further back so the graph fits sideways.
@@ -345,7 +452,10 @@ export function startMap(edition) {
     }
     controls.update();
     const now = performance.now();
-    nodeObjects.forEach(({ mesh }, index) => {
+    const seconds = now / 1000;
+    const moving = !reducedMotion.matches;
+
+    nodeObjects.forEach(({ mesh, glow }, index) => {
       const data = mesh.userData;
       const { node } = data;
       const linked = !selectedAi || (node.kind === 'ai' ? node.id === selectedAi : node.story.ais?.includes(selectedAi));
@@ -356,15 +466,39 @@ export function startMap(edition) {
       data.opacity = lerp(data.opacity, linked ? 1 : 0.18, 0.1);
       mesh.scale.setScalar(Math.max(0.0001, data.radius * data.scale));
       mesh.material.opacity = data.opacity;
-      mesh.children[0].material.opacity = (dark ? 0.55 : 0.32) * data.opacity;
+      // Hubs breathe.
+      const breath = node.kind === 'ai' && moving ? 1 + Math.sin(seconds * 1.6 + index) * 0.14 : 1;
+      glow.scale.setScalar(glow.userData.size * breath);
+      glow.material.opacity = data.glowOpacity * data.opacity;
     });
-    for (const segments of lines) {
-      const active = !selectedAi || segments.userData.aiId === selectedAi;
-      const goal = selectedAi ? (active ? 0.9 : 0.05) : dark ? 0.45 : 0.55;
-      segments.userData.opacity = lerp(segments.userData.opacity, goal, 0.06);
-      segments.material.opacity = segments.userData.opacity;
+
+    for (const group of linkGroups) {
+      const active = !selectedAi || group.aiId === selectedAi;
+      const goal = selectedAi ? (active ? 0.95 : 0.05) : dark ? 0.65 : 0.75;
+      group.opacity = lerp(group.opacity, goal, 0.06);
+      group.lines.material.opacity = group.opacity;
+      group.signals.visible = moving;
+      if (!moving) continue;
+      const signal = group.signals.geometry.getAttribute('position');
+      group.edges.forEach((edge, index) => {
+        const t = (seconds * SIGNAL_SPEED + group.phases[index]) % 1;
+        const from = position[edge.from];
+        const to = position[edge.to];
+        signal.setXYZ(index, lerp(from[0], to[0], t), lerp(from[1], to[1], t), lerp(from[2], to[2], t));
+      });
+      signal.needsUpdate = true;
+      group.signals.material.opacity = Math.min(1, group.opacity * 1.8);
     }
-    dust.rotation.y += reducedMotion.matches ? 0 : 0.0006;
+
+    synapseLines.userData.opacity = lerp(synapseLines.userData.opacity, selectedAi ? 0.05 : dark ? 0.28 : 0.4, 0.06);
+    synapseLines.material.opacity = synapseLines.userData.opacity;
+    if (moving) {
+      dust.rotation.y += 0.0005;
+      sparks.rotation.y = dust.rotation.y;
+      sparks.material.opacity = (dark ? 0.85 : 0.5) * (0.7 + Math.sin(seconds * 2.2) * 0.3);
+    } else {
+      sparks.material.opacity = dark ? 0.85 : 0.5;
+    }
 
     const { width, height } = stage.getBoundingClientRect();
     for (const { mesh, label } of hubLabels) {
@@ -374,7 +508,7 @@ export function startMap(edition) {
       const dim = selectedAi && mesh.userData.node.id !== selectedAi;
       label.style.opacity = behind ? 0 : dim ? 0.35 : Math.min(1, mesh.userData.scale);
     }
-    renderer.render(scene, camera);
+    composer.render();
     requestAnimationFrame(frame);
   };
 
