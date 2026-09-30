@@ -1,10 +1,11 @@
-// One edition, end to end: collect feeds → curate (Claude, or keyword fallback) → add the
-// "Em alta" section (trending repos, models and posts) → write DATA_DIR.
+// One edition, end to end: collect feeds → curate (Claude, or keyword fallback) → compare model
+// launches → add the "Em alta" section (trending repos, models and posts) → write DATA_DIR.
 // Used by the CLI (scripts/edition.mjs) and by the Railway process (scripts/start.mjs).
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
 import { collect } from './collect.mjs';
+import { addComparisons } from './compare.mjs';
 import { curateWithClaude, DEFAULT_MODEL } from './curate.mjs';
 import { assembleEdition, sourceUrlsOf } from './edition.mjs';
 import { fallbackCuration } from './fallback.mjs';
@@ -94,6 +95,14 @@ export async function runEdition({ root, dataDir, now = new Date(), ifMissing = 
     }
   }
   edition ??= assembleEdition({ ...base, raw: fallbackCuration(candidates, { now }), curation });
+
+  // Only curated editions flag launches; a failed comparison only costs that story its table.
+  if (edition.curated && edition.stories.some((story) => story.launch)) {
+    log.log('Montando comparativos de lançamento…');
+    const spent = await addComparisons(edition, { model, log });
+    edition.usage = { ...edition.usage, comparisons: spent };
+    log.log(`Comparativos: ${spent.input_tokens} tokens de entrada, ${spent.output_tokens} de saída, ${spent.web_search_requests} buscas.`);
+  }
 
   // The section is extra: when it fails, the edition goes out without it.
   try {

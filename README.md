@@ -15,6 +15,8 @@ A página é estática, sem etapa de build: `site/index.html`, `site/styles.css`
 
 **Filtro por IA.** Cada notícia recebe selos das IAs citadas (ChatGPT, Claude, Gemini, Llama, Grok, Copilot, Mistral, DeepSeek, Qwen e outras). A lista fica em `src/ais.mjs` e a detecção roda na geração da edição. Clicar num card ou selo mostra só as notícias daquela IA, e o link fica compartilhável (`?ia=claude`).
 
+**Lançamentos de modelos.** Quando uma notícia é o lançamento de um modelo novo de IA, a curadoria marca o nome do modelo e a página mostra um card de destaque, na cor da empresa. Esse tipo de notícia sai sempre completo, nunca nas Rápidas. Nas 2 primeiras notícias desse tipo, uma segunda chamada ao Claude lê o anúncio oficial (busca e leitura de página) e monta uma tabela que compara o modelo novo com até 3 rivais: benchmarks, preço e contexto. Só entram números da página lida, e a tabela leva o link dela. Se não houver números suficientes, o card sai sem tabela. O código fica em `src/compare.mjs`.
+
 **Em alta.** Depois das notícias, uma seção mostra o que a comunidade de IA está construindo e discutindo. São três colunas com até 5 itens cada:
 
 - **Repositórios:** projetos de IA do [GitHub Trending](https://github.com/trending), primeiro os do dia e, para completar, os da semana. Não existe API oficial para essa lista, então o script lê a página.
@@ -70,6 +72,8 @@ Cada edição envia cerca de 12 mil tokens (as ~120 notícias candidatas) e rece
 O consumo real de cada edição fica em `usage`, dentro do JSON da edição.
 
 A seção "Em alta" faz uma chamada a mais, bem menor: cerca de 4 mil tokens de entrada e até 2 mil de saída. Com o `claude-sonnet-5`, isso dá uns US$ 0,02 por edição, perto de US$ 0,70 por mês. O consumo fica em `trending.usage`.
+
+Nos dias com lançamento de modelo, cada comparativo é uma chamada extra com busca e leitura de páginas (no máximo 2 por edição). O consumo dela fica em `usage.comparisons`.
 
 ## Limitações
 

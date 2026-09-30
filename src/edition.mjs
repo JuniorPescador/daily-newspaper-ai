@@ -63,8 +63,9 @@ export function buildStories(raw, candidates, previousUrls = new Set()) {
       .map((source) => ({ ...source, publishedAt: new Date(source.publishedAt).toISOString() }));
 
     const latest = sources.reduce((max, source) => (source.publishedAt > max ? source.publishedAt : max), sources[0].publishedAt);
-    // The lead is always a full story; a brief one is just a line, so it carries no summary.
-    const brief = story.format === 'brief' && stories.length > 0;
+    const launchModel = clean(story.launch_model, 60);
+    // The lead and model launches are always full stories; a brief one is just a line, so it carries no summary.
+    const brief = story.format === 'brief' && stories.length > 0 && !launchModel;
     const built = {
       id: `s${stories.length + 1}`,
       category: story.category,
@@ -79,6 +80,10 @@ export function buildStories(raw, candidates, previousUrls = new Set()) {
       sources,
     };
     built.ais = detectAis(storyText(built));
+    if (launchModel) {
+      const maker = clean(story.launch_maker, 40);
+      built.launch = { model: launchModel, maker, ai: detectAis(`${launchModel} ${maker}`)[0] ?? null };
+    }
     stories.push(built);
     if (stories.length >= MAX_STORIES) break;
   }

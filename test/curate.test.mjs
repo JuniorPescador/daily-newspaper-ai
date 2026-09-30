@@ -40,6 +40,16 @@ test('Opus 5 requests use structured output, adaptive thinking and server-side f
   assert.deepEqual(result.usage, { input_tokens: 1200, output_tokens: 800 });
 });
 
+test('every story must say whether it is a model launch', async () => {
+  const client = stubClient(ok);
+  await curateWithClaude({ candidates, now, client });
+  const { request } = client.calls[0];
+  const story = request.output_config.format.schema.properties.stories.items;
+  assert.ok(story.required.includes('launch_model'));
+  assert.ok(story.required.includes('launch_maker'));
+  assert.match(request.system, /launch_model:/);
+});
+
 test('the default model is Sonnet 5 on the regular endpoint', async () => {
   const client = stubClient({ ...ok, model: 'claude-sonnet-5' });
   const result = await curateWithClaude({ candidates, now, client });
