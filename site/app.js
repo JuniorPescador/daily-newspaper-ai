@@ -1,3 +1,4 @@
+import { readingMinutes } from './reading-time.js';
 import { ago, duration } from './relative-time.js';
 
 const TIME_ZONE = 'America/Sao_Paulo';
@@ -263,6 +264,9 @@ function renderMasthead(edition) {
   $('#today').textContent = capitalize(longDate.format(new Date(edition.generatedAt)));
   $('#edition-label').textContent = edition.label;
   $('#edition-number').textContent = `Nº ${edition.number} · ${edition.stories.length} notícias`;
+  const reading = $('#reading-time');
+  reading.textContent = `Leitura: ~${readingMinutes(edition)} min`;
+  reading.title = 'Tempo estimado para ler os resumos desta edição, a 200 palavras por minuto';
   document.title = `Diário da IA · ${edition.label}`;
 }
 

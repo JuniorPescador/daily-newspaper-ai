@@ -9,7 +9,7 @@ Jornal de notícias sobre inteligência artificial, com novidades, mercado e ach
 3. **Plano B.** Sem `ANTHROPIC_API_KEY`, ou se a API falhar, sai uma edição automática: os títulos e trechos originais, com a categoria definida por palavras-chave. As 7 primeiras saem completas e o resto vai para as Rápidas. O Hoje na edição usa os títulos das 4 primeiras.
 4. **Publicação.** O site roda no Railway. O mesmo processo serve a página e gera a edição todo dia às 05:00 (horário de Brasília). As edições ficam num volume do Railway e o arquivo guarda cerca de 4 meses.
 
-A página é estática, sem etapa de build: `site/index.html`, `site/styles.css` e `site/app.js`, que lê `data/latest.json`. Quem serve é o `scripts/start.mjs`.
+A página é estática, sem etapa de build: `site/index.html`, `site/styles.css` e `site/app.js`, que lê `data/latest.json`. Quem serve é o `scripts/start.mjs`. O topo mostra o tempo de leitura da edição, contado no navegador a 200 palavras por minuto (`site/reading-time.js`).
 
 **Efeitos.** Uma aurora animada atrás do título assume a cor da IA escolhida. Os cards inclinam com o mouse, e o título tomba para trás ao rolar a página. O "Mapa do dia" mostra, em 3D, as notícias ligadas às IAs que citam. Ao filtrar por uma IA, a logo dela aparece em 3D no fundo. O código fica em `site/fx/`. O mapa e a logo usam Three.js, carregado do jsDelivr só quando a página precisa. Tudo desliga para quem ativou "reduzir movimento" no sistema.
 
