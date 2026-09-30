@@ -1,7 +1,32 @@
+import { readingMinutes } from './reading-time.js';
+import { ago, duration } from './relative-time.js';
+
 const TIME_ZONE = 'America/Sao_Paulo';
 const EDITION_ID = /^\d{4}-\d{2}-\d{2}-\d{2}h$/;
 const CATEGORY_LABEL = { novidades: 'Novidades', mercado: 'Mercado', achados: 'Achados' };
 const ARCHIVE_SHOWN = 12;
+const PERIOD_LABEL = { daily: 'hoje', weekly: 'na semana', monthly: 'no mês' };
+// Hugging Face pipeline tags, in plain words; anything else shows as the tag itself.
+const TASK_LABEL = {
+  'text-generation': 'gera texto',
+  'image-text-to-text': 'visão e texto',
+  'audio-text-to-text': 'áudio e texto',
+  'any-to-any': 'multimodal',
+  'text-to-image': 'gera imagem',
+  'image-to-image': 'edita imagem',
+  'text-to-video': 'gera vídeo',
+  'image-to-video': 'imagem para vídeo',
+  'text-to-speech': 'gera voz',
+  'text-to-audio': 'gera áudio',
+  'automatic-speech-recognition': 'transcreve fala',
+  'feature-extraction': 'embeddings',
+  'sentence-similarity': 'embeddings',
+  'text-classification': 'classifica texto',
+  'text-ranking': 'ranqueia textos',
+  'image-classification': 'classifica imagem',
+  'object-detection': 'detecta objetos',
+  robotics: 'robótica',
+};
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const $ = (selector) => document.querySelector(selector);
@@ -50,22 +75,8 @@ function capitalize(text) {
 const longDate = new Intl.DateTimeFormat('pt-BR', { timeZone: TIME_ZONE, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 const shortDate = new Intl.DateTimeFormat('pt-BR', { timeZone: TIME_ZONE, weekday: 'short', day: '2-digit', month: 'short' });
 const fullDateTime = new Intl.DateTimeFormat('pt-BR', { timeZone: TIME_ZONE, dateStyle: 'long', timeStyle: 'short' });
-
-function ago(iso, now = Date.now()) {
-  const minutes = Math.round((now - new Date(iso).getTime()) / 60_000);
-  if (minutes < 1) return 'agora';
-  if (minutes < 60) return `há ${minutes} min`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `há ${hours}h`;
-  const days = Math.round(hours / 24);
-  return days === 1 ? 'ontem' : `há ${days} dias`;
-}
-
-function duration(ms) {
-  const minutes = Math.max(0, Math.round(ms / 60_000));
-  const hours = Math.floor(minutes / 60);
-  return hours ? `${hours}h ${String(minutes % 60).padStart(2, '0')}min` : `${minutes} min`;
-}
+const compactNumber = new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 });
+const plainNumber = new Intl.NumberFormat('pt-BR');
 
 async function loadJson(url) {
   const response = await fetch(url, { cache: 'no-cache' });
@@ -282,6 +293,7 @@ function storyNode(story, { index, lead = false, showNew }) {
     'article',
     {
       class: ['story', launch ? 'story--launch' : '', comparison ? 'has-compare' : ''].join(' ').trim(),
+      'data-story': story.id,
       'data-category': story.category,
       'data-new': String(Boolean(story.isNew)),
       'data-ais': (story.ais ?? []).join(' '),
@@ -296,10 +308,40 @@ function storyNode(story, { index, lead = false, showNew }) {
   return node;
 }
 
+/** One line in "Rápidas": category, headline linked to the first source, then outlets and time. */
+function quickNode(story, { showNew }) {
+  const href = safeHref(story.sources[0]?.url);
+  const outlets = [...new Set(story.sources.map((source) => source.name))];
+  return el(
+    'li',
+    {
+      class: 'quick__item',
+      'data-story': story.id,
+      'data-category': story.category,
+      'data-new': String(Boolean(story.isNew)),
+      'data-ais': (story.ais ?? []).join(' '),
+    },
+    [
+      el('span', { class: `cat cat--${story.category}`, text: CATEGORY_LABEL[story.category] ?? story.category }),
+      el('p', { class: 'quick__title' }, [
+        href ? el('a', { href, target: '_blank', rel: 'noopener noreferrer' }, [story.title, arrowIcon()]) : story.title,
+      ]),
+      el('p', { class: 'quick__meta' }, [
+        showNew && story.isNew ? el('span', { class: 'badge-new', text: 'Novo' }) : null,
+        el('span', { text: outlets.join(', ') }),
+        el('time', { datetime: story.publishedAt, title: fullDateTime.format(new Date(story.publishedAt)), text: ago(story.publishedAt) }),
+      ]),
+    ],
+  );
+}
+
 function renderMasthead(edition) {
   $('#today').textContent = capitalize(longDate.format(new Date(edition.generatedAt)));
   $('#edition-label').textContent = edition.label;
   $('#edition-number').textContent = `Nº ${edition.number} · ${edition.stories.length} notícias`;
+  const reading = $('#reading-time');
+  reading.textContent = `Leitura: ~${readingMinutes(edition)} min`;
+  reading.title = 'Tempo estimado para ler os resumos desta edição, a 200 palavras por minuto';
   document.title = `Diário da IA · ${edition.label}`;
 }
 
@@ -328,7 +370,7 @@ function renderTicker(stories) {
   const items = stories.map((story) => el('span', { class: 'ticker__item', text: story.title }));
   // Two copies make the -50% loop seamless.
   track.replaceChildren(...items, ...items.map((item) => item.cloneNode(true)));
-  track.style.setProperty('--ticker-duration', `${Math.max(40, stories.length * 7)}s`);
+  track.style.setProperty('--ticker-duration', `${Math.max(60, stories.length * 10)}s`);
 }
 
 function renderEditorial(edition) {
@@ -336,6 +378,25 @@ function renderEditorial(edition) {
   const text = edition.editorial || edition.note;
   node.textContent = text ?? '';
   node.hidden = !text;
+}
+
+/** "Hoje na edição": one button per highlight, jumping to its story. */
+function renderOverview(edition) {
+  const known = new Set(edition.stories.map((story) => story.id));
+  const lines = (edition.highlights ?? []).filter((line) => known.has(line.storyId));
+  $('#overview-list').replaceChildren(
+    ...lines.map((line, position) =>
+      el(
+        'li',
+        {},
+        el('button', { type: 'button', class: 'overview__item', 'data-target': line.storyId }, [
+          el('span', { class: 'overview__num', 'aria-hidden': 'true', text: String(position + 1).padStart(2, '0') }),
+          el('span', { class: 'overview__text', text: line.text }),
+        ]),
+      ),
+    ),
+  );
+  $('#overview').hidden = lines.length === 0;
 }
 
 function renderTrends(trends) {
@@ -364,13 +425,18 @@ function matches(node, { category = state.filter, onlyNew = state.onlyNew, ai = 
   );
 }
 
+/** Every filterable story: the cards in the grid and the lines in "Rápidas". */
+function storyNodes() {
+  return [...$('#stories').children, ...$('#quick-list').children];
+}
+
 function filtersActive() {
   return state.filter !== 'all' || state.onlyNew || Boolean(state.ai);
 }
 
 /** Counts on each control reflect the other active filters. */
 function updateCounts() {
-  const nodes = [...$('#stories').children];
+  const nodes = storyNodes();
   for (const sup of document.querySelectorAll('sup[data-count]')) {
     sup.textContent = nodes.filter((node) => matches(node, { category: sup.dataset.count })).length;
   }
@@ -379,16 +445,18 @@ function updateCounts() {
 
 /** Applies the current filters; resolves once any transition has finished. */
 function applyFilters(animate) {
-  const grid = $('#stories');
   const update = () => {
     const active = filtersActive();
     let visible = 0;
-    for (const node of grid.children) {
+    let quick = 0;
+    for (const node of storyNodes()) {
       const show = matches(node) && (active || node.dataset.lead !== 'true');
       node.hidden = !show;
       if (show) visible += 1;
+      if (show && node.classList.contains('quick__item')) quick += 1;
     }
     $('#empty').hidden = visible > 0;
+    $('#quick').hidden = quick === 0;
     updateCounts();
   };
   if (animate && document.startViewTransition && !reducedMotion.matches) {
@@ -396,6 +464,34 @@ function applyFilters(animate) {
   }
   update();
   return Promise.resolve();
+}
+
+/** Back to the whole edition: every category, old and new stories, no AI. */
+function clearFilters() {
+  state.filter = 'all';
+  state.onlyNew = false;
+  state.ai = null;
+  document.querySelectorAll('.filter').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.filter === 'all')));
+  $('#only-new').checked = false;
+  moveIndicator();
+  syncAiUi();
+  return applyFilters(false);
+}
+
+/** The story as shown right now: the lead, a card in the grid or a line in "Rápidas". */
+function visibleStory(id) {
+  return [...document.querySelectorAll(`[data-story="${CSS.escape(id)}"]`)].find((node) => !node.hidden && node.offsetParent !== null);
+}
+
+/** Scrolls to a story and flashes it, clearing the filters first when they hide it. */
+async function goToStory(id) {
+  if (!visibleStory(id)) await clearFilters();
+  const target = visibleStory(id);
+  if (!target) return;
+  target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'center' });
+  target.classList.remove('fx-flash');
+  void target.offsetWidth;
+  target.classList.add('fx-flash');
 }
 
 function scrollToStories() {
@@ -429,7 +525,11 @@ function syncAiUi() {
   const url = new URL(window.location.href);
   if (ai) url.searchParams.set('ia', ai.id);
   else url.searchParams.delete('ia');
-  window.history.replaceState(null, '', url);
+  try {
+    window.history.replaceState(null, '', url);
+  } catch {
+    // Some embedded viewers refuse history changes; the filter still works, only the link isn't updated.
+  }
 }
 
 /** Selects an AI (or clears it when it is already selected). */
@@ -490,6 +590,68 @@ function setupControls(showNew) {
   window.addEventListener('resize', moveIndicator);
 }
 
+/* ---------- Em alta ---------- */
+
+function slashName(name) {
+  const slash = name.indexOf('/');
+  return el('span', { class: 'hot__name' }, [el('span', { class: 'hot__owner', text: name.slice(0, slash + 1) }), name.slice(slash + 1)]);
+}
+
+/** One ranked entry: link, optional body, then a line of facts. */
+function hotItem(url, head, body, facts) {
+  const href = safeHref(url);
+  if (!href) return null;
+  return el('li', { class: 'hot__item' }, [
+    el('a', { class: 'hot__link', href, target: '_blank', rel: 'noopener noreferrer' }, [...head, arrowIcon()]),
+    ...body,
+    el('p', { class: 'hot__meta', text: facts.filter(Boolean).join(' · ') }),
+  ]);
+}
+
+/** Claude's note in PT-BR; without it, the item's own description (in its original language). */
+function hotNote(note, fallback) {
+  if (note) return el('p', { class: 'hot__note', text: note });
+  return fallback ? el('p', { class: 'hot__note hot__note--raw', text: fallback }) : null;
+}
+
+function renderHot(trending) {
+  const section = $('#hot');
+  section.hidden = !trending;
+  if (!trending) return;
+
+  const lists = {
+    repos: (trending.repos ?? []).map((repo) =>
+      hotItem(repo.url, [slashName(repo.name)], [hotNote(repo.note, repo.description)], [
+        repo.language,
+        `${compactNumber.format(repo.stars)} estrelas`,
+        repo.gained ? `+${plainNumber.format(repo.gained)} ${PERIOD_LABEL[repo.period] ?? ''}`.trim() : null,
+      ]),
+    ),
+    models: (trending.models ?? []).map((model) =>
+      hotItem(model.url, [slashName(model.name)], [hotNote(model.note)], [
+        TASK_LABEL[model.task] ?? model.task,
+        `${compactNumber.format(model.likes)} curtidas`,
+        model.downloads ? `${compactNumber.format(model.downloads)} downloads` : null,
+      ]),
+    ),
+    posts: (trending.posts ?? []).map((post) =>
+      hotItem(
+        post.url,
+        [el('span', { class: 'hot__name', text: post.author }), el('span', { class: 'hot__handle', text: `@${post.handle}` })],
+        [el('blockquote', { class: 'hot__quote', text: post.text }), hotNote(post.note)],
+        [`${compactNumber.format(post.likes)} curtidas`, ago(post.publishedAt)],
+      ),
+    ),
+  };
+  for (const [key, items] of Object.entries(lists)) {
+    const list = $(`#hot-${key}`);
+    list.replaceChildren(...items.filter(Boolean));
+    list.closest('.hot__col').hidden = list.children.length === 0;
+  }
+  if (!trending.curated) $('#hot-hint').append(' Lista automática, sem comentários por IA.');
+  for (const column of section.querySelectorAll('.hot__col:not([hidden])')) reveal(column);
+}
+
 function renderArchive(index, currentId) {
   const section = $('.archive');
   const entries = index.slice(0, ARCHIVE_SHOWN);
@@ -513,7 +675,9 @@ function renderArchive(index, currentId) {
 function renderFooter(edition) {
   const ok = edition.stats.list?.filter((source) => source.ok && source.count > 0).map((source) => source.name) ?? [];
   const curation = edition.curated ? `Curadoria e resumos: ${edition.model}.` : 'Edição automática, sem resumos por IA.';
-  $('#footer-sources').textContent = `${curation} Fontes com notícias nesta edição (${ok.length} de ${edition.stats.sources}): ${ok.join(', ')}.`;
+  const hot = edition.trending?.sources?.filter((source) => source.ok).map((source) => source.name) ?? [];
+  const hotText = hot.length ? ` Em alta: ${hot.join(', ')}.` : '';
+  $('#footer-sources').textContent = `${curation} Fontes com notícias nesta edição (${ok.length} de ${edition.stats.sources}): ${ok.join(', ')}.${hotText}`;
 }
 
 function renderNotice(title, body) {
@@ -526,7 +690,10 @@ function renderNotice(title, body) {
 }
 
 function render(edition, index, isLatest, requestedAi) {
-  const [lead] = edition.stories;
+  // Editions before the "Rápidas" split have no format: every story is a full card.
+  const full = edition.stories.filter((story) => story.format !== 'brief');
+  const brief = edition.stories.filter((story) => story.format === 'brief');
+  const [lead] = full;
   const newCount = edition.stories.filter((story) => story.isNew).length;
   // When everything (or nothing) is new, the badges carry no information.
   const showNew = isLatest && newCount > 0 && newCount < edition.stories.length;
@@ -535,11 +702,13 @@ function render(edition, index, isLatest, requestedAi) {
   renderStatus(edition, isLatest);
   renderTicker(edition.stories);
   renderEditorial(edition);
+  renderOverview(edition);
   renderTrends(edition.trends ?? []);
   aiMeta = new Map((edition.ais ?? []).map((ai) => [ai.id, ai]));
 
   const leadNode = $('#lead');
   leadNode.removeAttribute('aria-busy');
+  leadNode.dataset.story = lead.id;
   leadNode.replaceChildren(...storyNode(lead, { lead: true, showNew }).filter(Boolean));
   leadNode.classList.toggle('lead--launch', Boolean(lead.launch?.model));
   if (launchColor(lead)) leadNode.style.setProperty('--brand', launchColor(lead));
@@ -547,15 +716,23 @@ function render(edition, index, isLatest, requestedAi) {
 
   // Launch cards span the whole grid, so they open it: placed mid-grid they would leave holes.
   const grid = $('#stories');
-  const nodes = edition.stories.map((story, position) => storyNode(story, { index: position + 1, showNew }));
+  const nodes = full.map((story, position) => storyNode(story, { index: position + 1, showNew }));
   grid.replaceChildren(...nodes.filter((node) => node.matches('.story--launch')), ...nodes.filter((node) => !node.matches('.story--launch')));
   for (const node of grid.children) reveal(node);
+  const quickList = $('#quick-list');
+  quickList.replaceChildren(...brief.map((story) => quickNode(story, { showNew })));
+  for (const node of quickList.children) reveal(node);
 
   renderAiFilter(edition.ais ?? []);
   setupControls(showNew);
+  $('#overview-list').addEventListener('click', (event) => {
+    const item = event.target.closest('.overview__item');
+    if (item) goToStory(item.dataset.target);
+  });
   if (requestedAi && aiMeta.has(requestedAi)) state.ai = requestedAi;
   syncAiUi();
   applyFilters(false);
+  renderHot(edition.trending);
   renderArchive(index, edition.id);
   renderFooter(edition);
 
@@ -585,6 +762,9 @@ async function main() {
     return;
   }
   render(edition, Array.isArray(index) ? index : [], !id || index[0]?.id === id, params.get('ia'));
+  import('./fx/index.js')
+    .then((fx) => fx.startEffects({ edition }))
+    .catch((error) => console.warn('[fx] effects unavailable:', error));
 }
 
 main();

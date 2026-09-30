@@ -1,6 +1,6 @@
 # Model launch highlight + comparison table
 
-Issue: JuniorPescador/daily-newspaper-ai#13 · Task: FEAT-005 · Status: approved 2026-09-26
+Issue: JuniorPescador/daily-newspaper-ai#13 · Task: FEAT-013 · Status: approved 2026-09-26
 
 ## Goal
 
@@ -24,7 +24,7 @@ announcement publishes numbers, a table comparing the new model with up to three
 2. **Assembly** (`src/edition.mjs` `buildStories`): non-empty `launch_model` becomes
    `story.launch = { model, maker, ai }`, where `ai` is the id from `src/ais.mjs` detected in
    the model/maker names (or `null`).
-3. **Comparison** (`src/compare.mjs`, called from `scripts/edition.mjs` only for curated
+3. **Comparison** (`src/compare.mjs`, called from `src/run-edition.mjs` only for curated
    editions): for the first 2 launch stories, one request with `web_search` (max 3 uses),
    `web_fetch` (max 3 uses, ~20k tokens per page) and `report_comparison`. `pause_turn` is resumed up to 3 times.
    The validated result is stored as `story.launch.comparison`; tokens are added to

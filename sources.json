@@ -19,7 +19,6 @@
   { "id": "crunchbase", "name": "Crunchbase News", "url": "https://news.crunchbase.com/sections/ai/feed/", "kind": "market", "weight": 2, "max": 8 },
 
   { "id": "simon-willison", "name": "Simon Willison", "url": "https://simonwillison.net/atom/everything/", "kind": "analysis", "weight": 2, "max": 6 },
-  { "id": "import-ai", "name": "Import AI", "url": "https://importai.substack.com/feed", "kind": "analysis", "weight": 2, "max": 3 },
   { "id": "latent-space", "name": "Latent Space", "url": "https://www.latent.space/feed", "kind": "analysis", "weight": 2, "max": 3 },
   { "id": "interconnects", "name": "Interconnects", "url": "https://www.interconnects.ai/feed", "kind": "analysis", "weight": 2, "max": 3 },
   { "id": "semianalysis", "name": "SemiAnalysis", "url": "https://www.semianalysis.com/feed", "kind": "analysis", "weight": 2, "max": 3 },

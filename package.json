@@ -9,13 +9,16 @@
     "node": ">=22"
   },
   "scripts": {
+    "start": "node scripts/start.mjs",
     "edition": "node scripts/edition.mjs",
     "dev": "node scripts/serve.mjs",
-    "build:site": "node scripts/build-site.mjs",
     "test": "node --test 'test/*.test.mjs'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
     "fast-xml-parser": "^5.11.1"
+  },
+  "devDependencies": {
+    "railway": "^3.11.0"
   }
 }

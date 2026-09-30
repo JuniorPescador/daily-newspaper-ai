@@ -24,6 +24,14 @@
         if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
       } catch {}
     </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+        }
+      }
+    </script>
     <script type="module" src="app.js"></script>
   </head>
   <body>
@@ -46,6 +54,7 @@
           <span id="today">&nbsp;</span>
           <span id="edition-label">&nbsp;</span>
           <span id="edition-number">&nbsp;</span>
+          <span id="reading-time">&nbsp;</span>
         </div>
         <h1 class="masthead__title" id="masthead-title">
           <span class="word" style="--w: 0">Diário</span>
@@ -65,6 +74,11 @@
       </div>
 
       <p class="editorial" id="editorial" hidden></p>
+
+      <nav class="overview" id="overview" aria-labelledby="overview-title" hidden>
+        <h2 class="section-label" id="overview-title">Hoje na edição</h2>
+        <ol class="overview__list" id="overview-list"></ol>
+      </nav>
 
       <section class="front" aria-label="Destaques">
         <article class="lead" id="lead" aria-busy="true">
@@ -111,6 +125,35 @@
         <div class="skeleton-card"><div class="skeleton skeleton--label"></div><div class="skeleton skeleton--title"></div><div class="skeleton skeleton--text"></div><div class="skeleton skeleton--text short"></div></div>
       </section>
       <p class="empty" id="empty" hidden>Nenhuma notícia nesse filtro.</p>
+
+      <section class="quick" id="quick" aria-labelledby="quick-title" hidden>
+        <div class="quick__head">
+          <h2 class="section-label" id="quick-title">Rápidas</h2>
+          <p class="quick__hint">As outras notícias do dia, em uma linha.</p>
+        </div>
+        <ol class="quick__list" id="quick-list"></ol>
+      </section>
+
+      <section class="hot" id="hot" aria-labelledby="hot-title" hidden>
+        <div class="hot__head">
+          <h2 class="section-label" id="hot-title">Em alta</h2>
+          <p class="hot__hint" id="hot-hint">O que a comunidade de IA está construindo e discutindo agora.</p>
+        </div>
+        <div class="hot__cols">
+          <section class="hot__col" aria-labelledby="hot-repos-title">
+            <h3 class="hot__title" id="hot-repos-title">Repositórios <span>GitHub</span></h3>
+            <ol class="hot__list" id="hot-repos"></ol>
+          </section>
+          <section class="hot__col" aria-labelledby="hot-models-title">
+            <h3 class="hot__title" id="hot-models-title">Modelos <span>Hugging Face</span></h3>
+            <ol class="hot__list" id="hot-models"></ol>
+          </section>
+          <section class="hot__col" aria-labelledby="hot-posts-title">
+            <h3 class="hot__title" id="hot-posts-title">Posts <span>Bluesky</span></h3>
+            <ol class="hot__list" id="hot-posts"></ol>
+          </section>
+        </div>
+      </section>
 
       <section class="archive" aria-labelledby="archive-title">
         <h2 class="section-label" id="archive-title">Edições anteriores</h2>

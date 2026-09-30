@@ -24,6 +24,11 @@ export async function readIndex(dataDir) {
   return Array.isArray(index) ? index.filter((entry) => EDITION_ID.test(entry?.id)) : [];
 }
 
+/** Whether the archive already has an edition from `date` ("YYYY-MM-DD", São Paulo). */
+export function hasEditionOn(index, date) {
+  return index.some((entry) => entry.id.startsWith(`${date}-`));
+}
+
 export async function readEdition(dataDir, id) {
   if (!EDITION_ID.test(id)) return null;
   return readJson(path.join(dataDir, 'editions', `${id}.json`), null);
