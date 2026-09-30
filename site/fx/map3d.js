@@ -397,7 +397,7 @@ export function startMap(edition) {
     for (const glow of nebulae) {
       glow.material.color.copy(token(glow.userData.token));
       glow.material.blending = blending;
-      glow.material.opacity = dark ? 0.22 : 0.4;
+      glow.material.opacity = dark ? 0.22 : 0;
     }
 
     // The surface shades from violet at the base to pink at the crown; a few points run white-hot.

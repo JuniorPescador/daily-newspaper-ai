@@ -1946,20 +1946,23 @@ html.with-depth .grid > .story:hover::before {
 /* Mapa do dia: the edition as a glowing neural network, in its own card. The --nm-* tokens feed
    both the CSS and the WebGL scene (site/fx/map3d.js), so the map follows the theme. */
 .fx-map {
-  --nm-card: #f6f2fb;
-  --nm-ink: #1b1428;
-  --nm-muted: #564e6b;
-  --nm-edge: rgb(27 20 40 / 0.1);
-  --nm-glass: rgb(255 255 255 / 0.8);
+  /* Light: the site's own paper, no tinted glow; the brain is drawn like ink. */
+  --nm-card: #fbfaf7;
+  --nm-ink: #121210;
+  --nm-muted: #5c5a53;
+  --nm-edge: rgb(18 18 16 / 0.1);
+  --nm-glass: rgb(255 255 255 / 0.88);
+  --nm-wash-a: transparent;
+  --nm-wash-b: transparent;
   --nm-novidades: #3558f0;
   --nm-mercado: #087a59;
   --nm-achados: #8b3cf6;
-  --nm-link: #e0287f;
-  --nm-pulse: #d4166f;
-  --nm-synapse: #8f6bd8;
-  --nm-star: #9d86cc;
-  --nm-glow-a: #ffc2e1;
-  --nm-glow-b: #c9d6ff;
+  --nm-link: #b8175c;
+  --nm-pulse: #a8104f;
+  --nm-synapse: #5f48b8;
+  --nm-star: #9c98a8;
+  --nm-glow-a: #fbfaf7;
+  --nm-glow-b: #fbfaf7;
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -1968,8 +1971,8 @@ html.with-depth .grid > .story:hover::before {
   border: 1px solid var(--nm-edge);
   border-radius: 24px;
   background:
-    radial-gradient(55% 60% at 100% 0%, color-mix(in srgb, var(--nm-link) 16%, transparent), transparent 70%),
-    radial-gradient(45% 55% at 0% 100%, color-mix(in srgb, var(--nm-novidades) 12%, transparent), transparent 70%),
+    radial-gradient(55% 60% at 100% 0%, var(--nm-wash-a), transparent 70%),
+    radial-gradient(45% 55% at 0% 100%, var(--nm-wash-b), transparent 70%),
     var(--nm-card);
   color: var(--nm-ink);
   animation: fade 0.9s var(--ease-out) both;
@@ -1982,6 +1985,8 @@ html.with-depth .grid > .story:hover::before {
     --nm-muted: #aaa3c0;
     --nm-edge: rgb(255 255 255 / 0.09);
     --nm-glass: rgb(16 12 26 / 0.8);
+    --nm-wash-a: rgb(255 63 164 / 0.16);
+    --nm-wash-b: rgb(111 149 255 / 0.12);
     --nm-novidades: #6f95ff;
     --nm-mercado: #3ee8b5;
     --nm-achados: #b77bff;
@@ -2001,6 +2006,8 @@ html.with-depth .grid > .story:hover::before {
   --nm-muted: #aaa3c0;
   --nm-edge: rgb(255 255 255 / 0.09);
   --nm-glass: rgb(16 12 26 / 0.8);
+  --nm-wash-a: rgb(255 63 164 / 0.16);
+  --nm-wash-b: rgb(111 149 255 / 0.12);
   --nm-novidades: #6f95ff;
   --nm-mercado: #3ee8b5;
   --nm-achados: #b77bff;
