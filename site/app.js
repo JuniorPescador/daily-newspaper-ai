@@ -301,6 +301,25 @@ function renderEditorial(edition) {
   node.hidden = !text;
 }
 
+/** "Hoje na edição": one button per highlight, jumping to its story. */
+function renderOverview(edition) {
+  const known = new Set(edition.stories.map((story) => story.id));
+  const lines = (edition.highlights ?? []).filter((line) => known.has(line.storyId));
+  $('#overview-list').replaceChildren(
+    ...lines.map((line, position) =>
+      el(
+        'li',
+        {},
+        el('button', { type: 'button', class: 'overview__item', 'data-target': line.storyId }, [
+          el('span', { class: 'overview__num', 'aria-hidden': 'true', text: String(position + 1).padStart(2, '0') }),
+          el('span', { class: 'overview__text', text: line.text }),
+        ]),
+      ),
+    ),
+  );
+  $('#overview').hidden = lines.length === 0;
+}
+
 function renderTrends(trends) {
   const list = $('#trends');
   list.replaceChildren(
@@ -366,6 +385,34 @@ function applyFilters(animate) {
   }
   update();
   return Promise.resolve();
+}
+
+/** Back to the whole edition: every category, old and new stories, no AI. */
+function clearFilters() {
+  state.filter = 'all';
+  state.onlyNew = false;
+  state.ai = null;
+  document.querySelectorAll('.filter').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.filter === 'all')));
+  $('#only-new').checked = false;
+  moveIndicator();
+  syncAiUi();
+  return applyFilters(false);
+}
+
+/** The story as shown right now: the lead, a card in the grid or a line in "Rápidas". */
+function visibleStory(id) {
+  return [...document.querySelectorAll(`[data-story="${CSS.escape(id)}"]`)].find((node) => !node.hidden && node.offsetParent !== null);
+}
+
+/** Scrolls to a story and flashes it, clearing the filters first when they hide it. */
+async function goToStory(id) {
+  if (!visibleStory(id)) await clearFilters();
+  const target = visibleStory(id);
+  if (!target) return;
+  target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'center' });
+  target.classList.remove('fx-flash');
+  void target.offsetWidth;
+  target.classList.add('fx-flash');
 }
 
 function scrollToStories() {
@@ -576,6 +623,7 @@ function render(edition, index, isLatest, requestedAi) {
   renderStatus(edition, isLatest);
   renderTicker(edition.stories);
   renderEditorial(edition);
+  renderOverview(edition);
   renderTrends(edition.trends ?? []);
   aiMeta = new Map((edition.ais ?? []).map((ai) => [ai.id, ai]));
 
@@ -594,6 +642,10 @@ function render(edition, index, isLatest, requestedAi) {
 
   renderAiFilter(edition.ais ?? []);
   setupControls(showNew);
+  $('#overview-list').addEventListener('click', (event) => {
+    const item = event.target.closest('.overview__item');
+    if (item) goToStory(item.dataset.target);
+  });
   if (requestedAi && aiMeta.has(requestedAi)) state.ai = requestedAi;
   syncAiUi();
   applyFilters(false);
