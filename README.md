@@ -1,17 +1,21 @@
-# Diário da IA
+# Gazeta Neural
 
 Jornal de notícias sobre inteligência artificial, com novidades, mercado e achados. Toda notícia leva o link da fonte original. Sai uma edição por dia, às 5h da manhã, em https://web-production-79215.up.railway.app/.
 
 ## Como funciona
 
 1. **Coleta.** `sources.json` lista cerca de 30 fontes: laboratórios, veículos de tecnologia, newsletters, Hacker News, Hugging Face Papers e veículos brasileiros. Entram só itens das últimas 36 h (72 h para papers). Anúncios e duplicatas saem nessa etapa, e as fontes de assunto geral passam por um filtro de IA.
-2. **Curadoria.** O Claude recebe a lista numerada e monta a edição com 14 a 22 notícias. Ele junta coberturas do mesmo fato, separa em **Novidades / Mercado / Achados** e aponta as tendências. As 6 a 8 notícias mais importantes saem completas, com título, resumo e "por que importa" em PT-BR. As outras vão para as **Rápidas**: só o título, uma linha por notícia. No topo, o **Hoje na edição** resume o dia em 3 a 5 linhas curtas, e cada uma leva à sua notícia. Os links vêm sempre dos feeds: o modelo só escolhe IDs, e IDs inventados são descartados.
+2. **Curadoria.** O Claude recebe a lista numerada e monta a edição com 14 a 22 notícias. Ele junta coberturas do mesmo fato, separa em **Novidades / Mercado / Achados** e aponta as tendências. As 6 a 8 notícias mais importantes saem completas, com título, resumo e "por que importa" em PT-BR. As outras vão para as **Rápidas**: só o título, uma linha por notícia. Logo depois da manchete, o **Hoje na edição** resume o dia em 3 a 5 linhas curtas, e cada uma leva à sua notícia. Os links vêm sempre dos feeds: o modelo só escolhe IDs, e IDs inventados são descartados.
 3. **Plano B.** Sem `ANTHROPIC_API_KEY`, ou se a API falhar, sai uma edição automática: os títulos e trechos originais, com a categoria definida por palavras-chave. As 7 primeiras saem completas e o resto vai para as Rápidas. O Hoje na edição usa os títulos das 4 primeiras.
 4. **Publicação.** O site roda no Railway. O mesmo processo serve a página e gera a edição todo dia às 05:00 (horário de Brasília). As edições ficam num volume do Railway e o arquivo guarda cerca de 4 meses.
 
 A página é estática, sem etapa de build: `site/index.html`, `site/styles.css` e `site/app.js`, que lê `data/latest.json`. Quem serve é o `scripts/start.mjs`. O topo mostra o tempo de leitura da edição, contado no navegador a 200 palavras por minuto (`site/reading-time.js`).
 
-**Efeitos.** Uma aurora animada atrás do título assume a cor da IA escolhida. Os cards inclinam com o mouse, e o título tomba para trás ao rolar a página. O "Mapa do dia" mostra, em 3D, as notícias ligadas às IAs que citam. Ao filtrar por uma IA, a logo dela aparece em 3D no fundo. O código fica em `site/fx/`. O mapa e a logo usam Three.js, carregado do jsDelivr só quando a página precisa. Tudo desliga para quem ativou "reduzir movimento" no sistema.
+**Manchete.** A notícia mais importante abre a página, como a primeira página de um jornal: título grande, imagem, resumo, "por que importa" e fontes, com as tendências ao lado. O nome e o símbolo do jornal ficam no canto superior esquerdo. A imagem é a de compartilhamento (`og:image`) das páginas de origem da notícia, na ordem das fontes: entra a primeira que existir, com crédito e link para a notícia. Logos e imagens genéricas ficam de fora, e sem imagem a manchete sai só com o título. O código fica em `src/lead-image.mjs`.
+
+**Marca.** O símbolo junta a régua de cabeçalho de jornal com três colunas de pontos ligados, como uma rede neural. O ponto laranja é o nó de saída e o ponto final do nome. As fontes são Instrument Serif (títulos), Instrument Sans (texto) e JetBrains Mono (rótulos).
+
+**Efeitos.** Uma aurora animada atrás da manchete assume a cor da IA escolhida. Os cards inclinam com o mouse. O "Mapa do dia" mostra, em 3D, as notícias ligadas às IAs que citam. Ao filtrar por uma IA, a logo dela aparece em 3D no fundo. O código fica em `site/fx/`. O mapa e a logo usam Three.js, carregado do jsDelivr só quando a página precisa. Tudo desliga para quem ativou "reduzir movimento" no sistema.
 
 **Filtro por IA.** Cada notícia recebe selos das IAs citadas (ChatGPT, Claude, Gemini, Llama, Grok, Copilot, Mistral, DeepSeek, Qwen e outras). A lista fica em `src/ais.mjs` e a detecção roda na geração da edição. Clicar num card ou selo mostra só as notícias daquela IA, e o link fica compartilhável (`?ia=claude`).
 

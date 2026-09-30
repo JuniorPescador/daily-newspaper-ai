@@ -49,9 +49,9 @@ function el(tag, attrs = {}, children = []) {
   return node;
 }
 
-function safeHref(url) {
+function safeHref(url, base) {
   try {
-    const parsed = new URL(url);
+    const parsed = new URL(url, base);
     return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? parsed.href : null;
   } catch {
     return null;
@@ -122,7 +122,7 @@ function setupScrollEffects() {
   );
   new IntersectionObserver(([entry]) => topbar.classList.toggle('is-scrolled', !entry.isIntersecting), {
     rootMargin: '-56px 0px 0px 0px',
-  }).observe($('.masthead__title'));
+  }).observe($('.masthead__meta'));
 }
 
 const revealer =
@@ -263,6 +263,18 @@ function launchModelNode(story) {
   return el('p', { class: 'launch__model' }, [ai ? aiIcon(ai, 'launch__logo', 'dot') : null, story.launch.model]);
 }
 
+/** The lead's picture, linked to the story, with the outlet credited. Images may be relative to the page. */
+function leadMedia(story, href) {
+  const src = safeHref(story.image?.url, window.location.href);
+  if (!src) return null;
+  // No referrer: some outlets refuse pictures shown on other sites when they see where the request came from.
+  const img = el('img', { src, alt: story.image.alt ?? '', decoding: 'async', referrerpolicy: 'no-referrer' });
+  return el('figure', { class: 'lead__media' }, [
+    href ? el('a', { href, target: '_blank', rel: 'noopener noreferrer', tabindex: '-1', 'aria-hidden': 'true' }, img) : img,
+    story.image.credit ? el('figcaption', { text: `Imagem: ${story.image.credit}` }) : null,
+  ]);
+}
+
 function storyNode(story, { index, lead = false, showNew }) {
   const href = safeHref(story.sources[0]?.url);
   const headline = href ? el('a', { href, target: '_blank', rel: 'noopener noreferrer', text: story.title }) : story.title;
@@ -282,6 +294,7 @@ function storyNode(story, { index, lead = false, showNew }) {
     meta,
     launch ? launchModelNode(story) : null,
     el(lead ? 'h2' : 'h3', { class: lead ? 'lead__title' : 'story__title' }, headline),
+    lead ? leadMedia(story, href) : null,
     story.summary ? el('p', { class: lead ? 'lead__summary' : 'story__summary', text: story.summary }) : null,
     why,
     lead ? comparison : null,
@@ -342,7 +355,7 @@ function renderMasthead(edition) {
   const reading = $('#reading-time');
   reading.textContent = `Leitura: ~${readingMinutes(edition)} min`;
   reading.title = 'Tempo estimado para ler os resumos desta edição, a 200 palavras por minuto';
-  document.title = `Diário da IA · ${edition.label}`;
+  document.title = `Gazeta Neural · ${edition.label}`;
 }
 
 function renderStatus(edition, isLatest) {

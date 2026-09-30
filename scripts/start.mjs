@@ -50,7 +50,7 @@ const server = createSiteServer({
   cacheAssets: true,
   health: () => ({ ok: true, running: Boolean(running), lastRun, nextRun }),
 });
-server.listen(port, () => console.log(`Diário da IA em http://localhost:${port} (dados em ${dataDir})`));
+server.listen(port, () => console.log(`Gazeta Neural em http://localhost:${port} (dados em ${dataDir})`));
 process.on('SIGTERM', () => server.close(() => process.exit(0)));
 
 const tagged = await backfillAis(dataDir);
