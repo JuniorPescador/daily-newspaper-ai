@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { formatCandidates } from '../src/curate.mjs';
-import { assembleEdition, buildStories, sourceUrlsOf } from '../src/edition.mjs';
+import { assembleEdition, buildHighlights, buildStories, sourceUrlsOf } from '../src/edition.mjs';
 import { categorize, fallbackCuration } from '../src/fallback.mjs';
 import { canonicalUrl } from '../src/text.mjs';
 import { editionSlot, localDate, nextRunAt } from '../src/time.mjs';
@@ -89,6 +89,61 @@ test('fallback features the top stories in full and lists the rest as brief', ()
     [...Array(7).fill('full'), ...Array(5).fill('brief')],
   );
   assert.equal(raw.stories[0].source_ids[0], 'm0');
+});
+
+test('buildHighlights points each line to a story through its source ids', () => {
+  const raw = {
+    stories: [
+      { category: 'novidades', format: 'full', title: 'Lead', summary: 'S', why_it_matters: 'W', tags: [], importance: 5, source_ids: ['c1'] },
+      { category: 'mercado', format: 'full', title: 'Merged', summary: 'S', why_it_matters: 'W', tags: [], importance: 4, source_ids: ['c3', 'c4'] },
+      { category: 'achados', format: 'brief', title: 'Quick', summary: '', why_it_matters: '', tags: [], importance: 2, source_ids: ['c2'] },
+    ],
+  };
+  const stories = buildStories(raw, candidates);
+  const highlights = buildHighlights(
+    [
+      { text: 'Linha do lead', source_id: 'c1' },
+      { text: 'Linha inventada', source_id: 'c99' },
+      { text: 'Linha da fusão', source_id: 'c4' },
+      { text: 'Repetida', source_id: 'c3' },
+      { text: '', source_id: 'c2' },
+      { text: 'Linha da rápida', source_id: 'c2' },
+    ],
+    stories,
+    candidates,
+  );
+  assert.deepEqual(highlights, [
+    { text: 'Linha do lead', storyId: 's1' },
+    { text: 'Linha da fusão', storyId: 's2' },
+    { text: 'Linha da rápida', storyId: 's3' },
+  ]);
+});
+
+test('buildHighlights falls back to the top full stories when too few lines are valid', () => {
+  const raw = {
+    stories: ['c1', 'c2', 'c3', 'c4'].map((id, n) => ({
+      category: 'novidades',
+      format: n === 2 ? 'brief' : 'full',
+      title: `Story ${id}`,
+      summary: 'S',
+      why_it_matters: 'W',
+      tags: [],
+      importance: 3,
+      source_ids: [id],
+    })),
+  };
+  const stories = buildStories(raw, candidates);
+  const expected = [
+    { text: 'Story c1', storyId: 's1' },
+    { text: 'Story c2', storyId: 's2' },
+    { text: 'Story c4', storyId: 's4' },
+  ];
+  assert.deepEqual(buildHighlights([{ text: 'Só uma', source_id: 'c1' }], stories, candidates), expected);
+  assert.deepEqual(buildHighlights(undefined, stories, candidates), expected);
+
+  const edition = assembleEdition({ raw: fallbackCuration(candidates, { now }), candidates, now, previousUrls: new Set(), curation: { curated: false }, report: [] });
+  assert.equal(edition.highlights.length, 4);
+  assert.equal(edition.highlights[0].storyId, edition.stories[0].id);
 });
 
 test('assembleEdition numbers editions and keeps the number when re-run in the same slot', () => {

@@ -6,6 +6,9 @@ import { editionSlot, nextRunAt } from './time.mjs';
 export const SCHEMA_VERSION = 1;
 const MAX_STORIES = 24;
 const MIN_STORIES = 3;
+const MIN_HIGHLIGHTS = 3;
+const MAX_HIGHLIGHTS = 5;
+const DEFAULT_HIGHLIGHTS = 4;
 
 function clean(value, max) {
   return truncate(stripHtml(value ?? ''), max);
@@ -82,6 +85,32 @@ export function buildStories(raw, candidates, previousUrls = new Set()) {
   return stories;
 }
 
+/**
+ * The "Hoje na edição" lines. Each one must reach a story through one of its candidate ids;
+ * with fewer than three valid lines, the titles of the top full stories stand in.
+ */
+export function buildHighlights(raw, stories, candidates) {
+  const storyByUrl = new Map();
+  for (const story of stories) for (const source of story.sources) storyByUrl.set(canonicalUrl(source.url), story);
+  const urlById = new Map(candidates.map((candidate) => [candidate.id, canonicalUrl(candidate.url)]));
+
+  const highlights = [];
+  const covered = new Set();
+  for (const line of Array.isArray(raw) ? raw : []) {
+    const story = storyByUrl.get(urlById.get(line?.source_id));
+    const text = clean(line?.text, 100);
+    if (!story || !text || covered.has(story.id)) continue;
+    covered.add(story.id);
+    highlights.push({ text, storyId: story.id });
+    if (highlights.length >= MAX_HIGHLIGHTS) break;
+  }
+  if (highlights.length >= MIN_HIGHLIGHTS) return highlights;
+  return stories
+    .filter((story) => story.format !== 'brief')
+    .slice(0, DEFAULT_HIGHLIGHTS)
+    .map((story) => ({ text: clean(story.title, 100), storyId: story.id }));
+}
+
 export function assembleEdition({ raw, candidates, now, previousUrls, lastNumber = 0, lastId = null, curation, report }) {
   const stories = buildStories(raw, candidates, previousUrls);
   if (stories.length < MIN_STORIES) {
@@ -102,6 +131,7 @@ export function assembleEdition({ raw, candidates, now, previousUrls, lastNumber
     usage: curation.usage ?? null,
     note: curation.note ?? null,
     editorial: clean(raw.editorial, 400),
+    highlights: buildHighlights(raw.highlights, stories, candidates),
     trends: (Array.isArray(raw.trends) ? raw.trends : [])
       .map((trend) => ({ label: clean(trend?.label, 60), note: clean(trend?.note, 160) }))
       .filter((trend) => trend.label)

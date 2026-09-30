@@ -39,12 +39,22 @@ Writing (Brazilian Portuguese, clear and direct, no hype, no emojis; keep compan
 
 List the full stories first, then the brief ones, each group from most to least important; the first story is the lead of the edition.
 editorial: one or two sentences that open the edition and capture the tone of the day.
+highlights: 3-5 short lines (up to about 70 characters each) giving an at-a-glance overview of the edition's most important stories, in order of importance and starting with the lead. Each line covers one story and points to it through source_id: one of that story's source_ids.
 trends: 3-5 themes that show up across several stories right now (label: 2-4 words; note: one short sentence).`;
 
 const OUTPUT_SCHEMA = {
   type: 'object',
   properties: {
     editorial: { type: 'string' },
+    highlights: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { text: { type: 'string' }, source_id: { type: 'string' } },
+        required: ['text', 'source_id'],
+        additionalProperties: false,
+      },
+    },
     trends: {
       type: 'array',
       items: {
@@ -73,7 +83,7 @@ const OUTPUT_SCHEMA = {
       },
     },
   },
-  required: ['editorial', 'trends', 'stories'],
+  required: ['editorial', 'highlights', 'trends', 'stories'],
   additionalProperties: false,
 };
 

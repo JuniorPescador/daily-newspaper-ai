@@ -483,6 +483,67 @@ input {
   text-wrap: balance;
 }
 
+/* ---------- Hoje na edição ---------- */
+
+.overview {
+  margin-top: 48px;
+}
+
+.overview__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0 32px;
+}
+
+.overview__list li {
+  display: flex;
+}
+
+.overview__item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 0 12px;
+  border: 0;
+  border-top: 1px solid var(--rule);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.overview__item:hover {
+  border-top-color: var(--ink);
+}
+
+.overview__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.overview__num {
+  font: 500 11px/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.overview__text {
+  font: 400 1.15rem/1.3 var(--serif);
+  text-wrap: pretty;
+}
+
+.overview__item:hover .overview__text {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
 /* ---------- Front: lead + trends ---------- */
 
 .section-label {
@@ -1845,6 +1906,12 @@ html.with-depth .grid > .story:hover::before {
   .quick__list,
   .archive__list {
     grid-template-columns: 1fr;
+  }
+  .overview__item {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 12px;
+    padding: 10px 0;
   }
   .quick__item {
     grid-template-columns: 1fr;
