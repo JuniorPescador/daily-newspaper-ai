@@ -73,6 +73,11 @@ export function buildStories(raw, candidates, previousUrls = new Set()) {
       sources,
     };
     built.ais = detectAis(storyText(built));
+    const launchModel = clean(story.launch_model, 60);
+    if (launchModel) {
+      const maker = clean(story.launch_maker, 40);
+      built.launch = { model: launchModel, maker, ai: detectAis(`${launchModel} ${maker}`)[0] ?? null };
+    }
     stories.push(built);
     if (stories.length >= MAX_STORIES) break;
   }

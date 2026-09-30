@@ -54,6 +54,22 @@ test('buildStories drops invented ids, reuses nothing and takes links only from 
   assert.equal(stories[1].isNew, false, 'shares a source with the previous edition');
 });
 
+test('buildStories marks model launches only when the curator names a model', () => {
+  const raw = {
+    stories: [
+      { category: 'novidades', title: 'Launch', summary: 'S', why_it_matters: '', tags: [], importance: 5, launch_model: ' Claude Opus 5.5 ', launch_maker: 'Anthropic', source_ids: ['c1'] },
+      { category: 'novidades', title: 'Open model', summary: 'S', why_it_matters: '', tags: [], importance: 4, launch_model: 'Nova-1', launch_maker: '', source_ids: ['c2'] },
+      { category: 'mercado', title: 'Deal', summary: 'S', why_it_matters: '', tags: [], importance: 3, launch_model: '', launch_maker: '', source_ids: ['c3'] },
+      { category: 'achados', title: 'Older output', summary: 'S', why_it_matters: '', tags: [], importance: 3, source_ids: ['c4'] },
+    ],
+  };
+  const [launch, unknown, deal, older] = buildStories(raw, candidates);
+  assert.deepEqual(launch.launch, { model: 'Claude Opus 5.5', maker: 'Anthropic', ai: 'claude' });
+  assert.deepEqual(unknown.launch, { model: 'Nova-1', maker: '', ai: null });
+  assert.equal(deal.launch, undefined);
+  assert.equal(older.launch, undefined);
+});
+
 test('assembleEdition numbers editions and keeps the number when re-run in the same slot', () => {
   const raw = fallbackCuration(candidates, { now });
   const base = { raw, candidates, now, previousUrls: new Set(), curation: { curated: false }, report: [{ name: 'News', ok: true, count: 4 }] };

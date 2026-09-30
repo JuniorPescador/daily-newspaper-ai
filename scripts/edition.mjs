@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
 import { collect } from '../src/collect.mjs';
+import { addComparisons } from '../src/compare.mjs';
 import { curateWithClaude, DEFAULT_MODEL } from '../src/curate.mjs';
 import { assembleEdition, sourceUrlsOf } from '../src/edition.mjs';
 import { fallbackCuration } from '../src/fallback.mjs';
@@ -84,6 +85,13 @@ async function main() {
     curation,
     report,
   });
+
+  if (edition.curated && edition.stories.some((story) => story.launch)) {
+    console.log('Montando comparativos de lançamento…');
+    const spent = await addComparisons(edition, { model });
+    edition.usage = { ...edition.usage, comparisons: spent };
+    console.log(`Comparativos: ${spent.input_tokens} tokens de entrada, ${spent.output_tokens} de saída, ${spent.web_search_requests} buscas.`);
+  }
 
   await saveEdition(dataDir, edition, index);
   const fresh = edition.stories.filter((story) => story.isNew).length;

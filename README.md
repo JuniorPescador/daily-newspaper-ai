@@ -13,6 +13,8 @@ A página é estática, sem etapa de build: `site/index.html`, `site/styles.css`
 
 **Filtro por IA.** Cada notícia recebe selos das IAs citadas (ChatGPT, Claude, Gemini, Llama, Grok, Copilot, Mistral, DeepSeek, Qwen e outras). A lista fica em `src/ais.mjs` e a detecção roda na geração da edição. Clicar num card ou selo mostra só as notícias daquela IA, e o link fica compartilhável (`?ia=claude`).
 
+**Lançamentos de modelos.** Quando uma notícia é o lançamento de um modelo novo de IA, a curadoria marca o nome do modelo e a página mostra um card de destaque, na cor da empresa. Nas 2 primeiras notícias desse tipo, uma segunda chamada ao Claude lê o anúncio oficial (busca e leitura de página) e monta uma tabela que compara o modelo novo com até 3 rivais: benchmarks, preço e contexto. Só entram números da página lida, e a tabela leva o link dela. Se não houver números suficientes, o card sai sem tabela. O código fica em `src/compare.mjs`.
+
 ## Rodar localmente
 
 ```bash
@@ -46,6 +48,8 @@ Cada edição envia cerca de 12 mil tokens (as ~120 notícias candidatas) e rece
 | `claude-haiku-4-5` | ~US$ 0,04 | ~US$ 1 |
 
 O consumo real de cada edição fica em `usage`, dentro do JSON da edição.
+
+Nos dias com lançamento de modelo, cada comparativo é uma chamada extra com busca e leitura de páginas (no máximo 2 por edição). O consumo dela fica em `usage.comparisons`.
 
 ## Limitações
 

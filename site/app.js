@@ -184,11 +184,81 @@ function aiBadges(story) {
   );
 }
 
+/* ---------- model launches ---------- */
+
+const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
+const usd = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 3 });
+const compact = new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 });
+
+function formatValue(value, unit) {
+  if (value == null) return '—';
+  if (unit === '%') return `${decimal.format(value)}%`;
+  if (unit === 'usd') return usd.format(value);
+  if (unit === 'tokens') return compact.format(value);
+  return decimal.format(value);
+}
+
+/** Columns holding the row's best value; none when every model ties. */
+function bestColumns(row) {
+  const numbers = row.values.filter((value) => typeof value === 'number');
+  if (numbers.length < 2) return new Set();
+  const best = row.better === 'lower' ? Math.min(...numbers) : Math.max(...numbers);
+  if (numbers.every((value) => value === best)) return new Set();
+  return new Set(row.values.flatMap((value, column) => (value === best ? [column] : [])));
+}
+
+function launchColor(story) {
+  return aiMeta.get(story.launch?.ai)?.color ?? null;
+}
+
+function comparisonNode(comparison) {
+  const source = safeHref(comparison.source?.url);
+  const head = el('tr', {}, [
+    el('th', { scope: 'col' }, el('span', { class: 'sr-only', text: 'Métrica' })),
+    ...comparison.models.map((name, column) => el('th', { scope: 'col', class: column === 0 ? 'is-new' : null, text: name })),
+  ]);
+  const rows = comparison.rows.map((row) => {
+    const best = bestColumns(row);
+    return el('tr', {}, [
+      el('th', { scope: 'row', text: row.label }),
+      ...row.values.map((value, column) => {
+        const cell = el('td', { class: [column === 0 ? 'is-new' : '', best.has(column) ? 'is-best' : ''].join(' ').trim() || null }, [
+          el('span', { class: 'compare__value', text: formatValue(value, row.unit) }),
+          best.has(column) ? el('span', { class: 'sr-only', text: ' (melhor)' }) : null,
+        ]);
+        if (row.unit === '%' && value != null) {
+          const bar = el('span', { class: 'compare__bar', 'aria-hidden': 'true' });
+          bar.style.setProperty('--value', Math.min(100, Math.max(0, value)) / 100);
+          cell.append(bar);
+        }
+        return cell;
+      }),
+    ]);
+  });
+  // The visible title sits outside the scroller so it stays put; the caption names the table for screen readers.
+  return el('figure', { class: 'compare' }, [
+    el('p', { class: 'compare__title', 'aria-hidden': 'true', text: 'Como se compara' }),
+    el('div', { class: 'compare__scroll' }, el('table', {}, [el('caption', { class: 'sr-only', text: 'Como se compara' }), el('thead', {}, head), el('tbody', {}, rows)])),
+    el('figcaption', { class: 'compare__note' }, [
+      'Números divulgados por ',
+      source ? el('a', { href: source, target: '_blank', rel: 'noopener noreferrer' }, [comparison.source.name, arrowIcon()]) : comparison.source?.name,
+      '. Em destaque, o melhor de cada linha.',
+    ]),
+  ]);
+}
+
+function launchModelNode(story) {
+  const ai = aiMeta.get(story.launch.ai);
+  return el('p', { class: 'launch__model' }, [ai ? aiIcon(ai, 'launch__logo', 'dot') : null, story.launch.model]);
+}
+
 function storyNode(story, { index, lead = false, showNew }) {
   const href = safeHref(story.sources[0]?.url);
   const headline = href ? el('a', { href, target: '_blank', rel: 'noopener noreferrer', text: story.title }) : story.title;
+  const launch = story.launch?.model ? story.launch : null;
   const meta = el('div', { class: 'story__meta' }, [
     lead ? el('span', { class: 'story__index', text: 'Manchete' }) : el('span', { class: 'story__index', text: String(index).padStart(2, '0') }),
+    launch ? el('span', { class: 'launch-tag', text: 'Lançamento' }) : null,
     el('span', { class: `cat cat--${story.category}`, text: CATEGORY_LABEL[story.category] ?? story.category }),
     showNew && story.isNew ? el('span', { class: 'badge-new', text: 'Novo' }) : null,
     el('time', { class: 'story__time', datetime: story.publishedAt, title: fullDateTime.format(new Date(story.publishedAt)), text: ago(story.publishedAt) }),
@@ -196,11 +266,14 @@ function storyNode(story, { index, lead = false, showNew }) {
   const why = story.whyItMatters
     ? el('p', { class: 'story__why' }, [el('span', { text: 'Por que importa' }), el('span', { text: story.whyItMatters })])
     : null;
+  const comparison = launch?.comparison ? comparisonNode(launch.comparison) : null;
   const children = [
     meta,
+    launch ? launchModelNode(story) : null,
     el(lead ? 'h2' : 'h3', { class: lead ? 'lead__title' : 'story__title' }, headline),
     story.summary ? el('p', { class: lead ? 'lead__summary' : 'story__summary', text: story.summary }) : null,
     why,
+    lead ? comparison : null,
     aiBadges(story),
     sourcesList(story),
   ];
@@ -208,15 +281,17 @@ function storyNode(story, { index, lead = false, showNew }) {
   const node = el(
     'article',
     {
-      class: 'story',
+      class: ['story', launch ? 'story--launch' : '', comparison ? 'has-compare' : ''].join(' ').trim(),
       'data-category': story.category,
       'data-new': String(Boolean(story.isNew)),
       'data-ais': (story.ais ?? []).join(' '),
       // The lead is already featured above; it joins the grid only while a filter is on.
       'data-lead': index === 1 ? 'true' : null,
     },
-    children,
+    // A launch card puts its table beside the text; the body wrapper keeps the text in one column.
+    comparison ? [el('div', { class: 'launch__body' }, children), comparison] : children,
   );
+  if (launch && launchColor(story)) node.style.setProperty('--brand', launchColor(story));
   node.style.viewTransitionName = `story-${story.id}`;
   return node;
 }
@@ -466,10 +541,14 @@ function render(edition, index, isLatest, requestedAi) {
   const leadNode = $('#lead');
   leadNode.removeAttribute('aria-busy');
   leadNode.replaceChildren(...storyNode(lead, { lead: true, showNew }).filter(Boolean));
+  leadNode.classList.toggle('lead--launch', Boolean(lead.launch?.model));
+  if (launchColor(lead)) leadNode.style.setProperty('--brand', launchColor(lead));
   reveal(leadNode);
 
+  // Launch cards span the whole grid, so they open it: placed mid-grid they would leave holes.
   const grid = $('#stories');
-  grid.replaceChildren(...edition.stories.map((story, position) => storyNode(story, { index: position + 1, showNew })));
+  const nodes = edition.stories.map((story, position) => storyNode(story, { index: position + 1, showNew }));
+  grid.replaceChildren(...nodes.filter((node) => node.matches('.story--launch')), ...nodes.filter((node) => !node.matches('.story--launch')));
   for (const node of grid.children) reveal(node);
 
   renderAiFilter(edition.ais ?? []);

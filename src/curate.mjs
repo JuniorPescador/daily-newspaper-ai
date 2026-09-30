@@ -30,6 +30,8 @@ Writing (Brazilian Portuguese, clear and direct, no hype, no emojis; keep compan
 - why_it_matters: one sentence on the impact for the reader.
 - tags: 1-3 short tags (companies or themes).
 - importance: integer from 1 (minor) to 5 (major).
+- launch_model: when the story is the release of a new AI model by its maker (a new LLM, or a new image, video, audio or embedding model, made available or formally announced), the model's name exactly as the sources write it, e.g. "Claude Opus 5.5". Otherwise an empty string. Leave it empty for apps, features, pricing changes, updates to an existing model, rumors and leaks.
+- launch_maker: the company or lab behind that model, e.g. "Anthropic"; empty when launch_model is empty.
 
 Order stories from most to least important; the first one is the lead of the edition.
 editorial: one or two sentences that open the edition and capture the tone of the day.
@@ -59,9 +61,11 @@ const OUTPUT_SCHEMA = {
           why_it_matters: { type: 'string' },
           tags: { type: 'array', items: { type: 'string' } },
           importance: { type: 'integer' },
+          launch_model: { type: 'string' },
+          launch_maker: { type: 'string' },
           source_ids: { type: 'array', items: { type: 'string' } },
         },
-        required: ['category', 'title', 'summary', 'why_it_matters', 'tags', 'importance', 'source_ids'],
+        required: ['category', 'title', 'summary', 'why_it_matters', 'tags', 'importance', 'launch_model', 'launch_maker', 'source_ids'],
         additionalProperties: false,
       },
     },
