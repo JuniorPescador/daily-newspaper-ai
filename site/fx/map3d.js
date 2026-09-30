@@ -448,13 +448,19 @@ export function startMap(edition) {
   applyPalette();
   onPaletteChange(applyPalette);
 
+  const home = camera.position.clone();
   const resize = () => {
     const { width, height } = stage.getBoundingClientRect();
+    // A stage with no size yet (a page still loading in a hidden frame) would put the camera at an
+    // infinite distance, and every position after that would be NaN. Wait for a real size.
+    if (width < 1 || height < 1) return;
     renderer.setSize(width, height, false);
     composer.setPixelRatio(renderer.getPixelRatio());
     composer.setSize(width, height);
-    camera.aspect = width / Math.max(1, height);
+    camera.aspect = width / height;
     camera.updateProjectionMatrix();
+    const reach = camera.position.length();
+    if (!Number.isFinite(reach) || reach === 0) camera.position.copy(home);
     // Narrow stages (phones) need the camera further back so the brain fits sideways.
     camera.position.setLength(Math.max(11, 14 / camera.aspect));
   };
