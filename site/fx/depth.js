@@ -1,4 +1,4 @@
-// Depth: story cards tilt toward the pointer and lift, and the masthead folds back as you scroll.
+// Depth: story cards tilt toward the pointer and lift.
 import { finePointer, reducedMotion } from './shared.js';
 
 const MAX_TILT = 7; // degrees
@@ -31,32 +31,10 @@ function tiltCards() {
   }
 }
 
-function foldMasthead() {
-  const masthead = document.querySelector('.masthead');
-  let queued = false;
-  const update = () => {
-    queued = false;
-    const progress = Math.min(1, Math.max(0, window.scrollY / Math.max(1, masthead.offsetHeight)));
-    masthead.style.setProperty('--fold', progress.toFixed(3));
-  };
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (!queued) {
-        queued = true;
-        requestAnimationFrame(update);
-      }
-    },
-    { passive: true },
-  );
-  update();
-}
-
 export function startDepth() {
   if (reducedMotion.matches) {
     document.documentElement.classList.remove('with-depth');
     return;
   }
-  foldMasthead();
   if (finePointer.matches) tiltCards();
 }

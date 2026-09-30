@@ -3,19 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Diário da IA</title>
+    <title>Gazeta Neural</title>
     <meta name="description" content="Novidades, mercado e achados de inteligência artificial, com as fontes. Nova edição todo dia às 5h." />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#f5f3ee" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0d0d0c" media="(prefers-color-scheme: dark)" />
-    <meta property="og:title" content="Diário da IA" />
+    <meta property="og:title" content="Gazeta Neural" />
     <meta property="og:description" content="Novidades, mercado e achados de IA, com as fontes. Nova edição todo dia às 5h." />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
     />
     <link rel="stylesheet" href="styles.css" />
     <script>
@@ -39,7 +39,15 @@
 
     <header class="topbar">
       <div class="wrap topbar__inner">
-        <a class="brand" href="./" aria-label="Diário da IA, edição mais recente">Diário da IA<span class="dot">.</span></a>
+        <a class="brand" href="./" aria-label="Gazeta Neural, edição mais recente">
+          <svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="8" y="6" width="48" height="6" rx="1" />
+            <g class="brand__links"><path d="M16 30 32 24M16 30 32 38M16 30 32 52M16 46 32 24M16 46 32 38M16 46 32 52M32 24 48 38M32 38 48 38M32 52 48 38" /></g>
+            <circle cx="16" cy="30" r="5" /><circle cx="16" cy="46" r="5" /><circle cx="32" cy="24" r="5" /><circle cx="32" cy="38" r="5" /><circle cx="32" cy="52" r="5" />
+            <circle class="brand__node" cx="48" cy="38" r="7.5" />
+          </svg>
+          <span>Gazeta <em>Neural</em><span class="dot">.</span></span>
+        </a>
         <p class="status" id="status"><span class="status__pulse" aria-hidden="true"></span><span id="status-text">Carregando edição…</span></p>
         <button class="icon-button" id="theme-toggle" type="button" aria-label="Alternar tema claro e escuro">
           <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" /></svg>
@@ -50,24 +58,33 @@
 
     <main class="wrap">
       <section class="masthead" aria-labelledby="masthead-title">
+        <h1 class="visually-hidden" id="masthead-title">Gazeta Neural</h1>
         <div class="masthead__meta">
           <span id="today">&nbsp;</span>
           <span id="edition-label">&nbsp;</span>
           <span id="edition-number">&nbsp;</span>
           <span id="reading-time">&nbsp;</span>
         </div>
-        <h1 class="masthead__title" id="masthead-title">
-          <span class="word" style="--w: 0">Diário</span>
-          <em class="word" style="--w: 1">da</em>
-          <span class="word" style="--w: 2">IA<span class="dot">.</span></span>
-        </h1>
-        <p class="masthead__tagline">Novidades, mercado e achados de inteligência artificial, sempre com a fonte.</p>
-      </section>
 
-      <p class="archive-banner" id="archive-banner" hidden>
-        <span id="archive-banner-text"></span>
-        <a href="./">Ver a edição mais recente <span aria-hidden="true">→</span></a>
-      </p>
+        <p class="archive-banner" id="archive-banner" hidden>
+          <span id="archive-banner-text"></span>
+          <a href="./">Ver a edição mais recente <span aria-hidden="true">→</span></a>
+        </p>
+
+        <section class="front" aria-label="Manchete e tendências">
+          <article class="lead" id="lead" aria-busy="true">
+            <div class="skeleton skeleton--label"></div>
+            <div class="skeleton skeleton--headline"></div>
+            <div class="skeleton skeleton--headline short"></div>
+            <div class="skeleton skeleton--media"></div>
+            <div class="skeleton skeleton--text"></div>
+          </article>
+          <aside class="trends" aria-labelledby="trends-title">
+            <h2 class="section-label" id="trends-title">Tendências</h2>
+            <ol class="trends__list" id="trends"></ol>
+          </aside>
+        </section>
+      </section>
 
       <div class="ticker" aria-hidden="true">
         <div class="ticker__track" id="ticker"></div>
@@ -79,20 +96,6 @@
         <h2 class="section-label" id="overview-title">Hoje na edição</h2>
         <ol class="overview__list" id="overview-list"></ol>
       </nav>
-
-      <section class="front" aria-label="Destaques">
-        <article class="lead" id="lead" aria-busy="true">
-          <div class="skeleton skeleton--label"></div>
-          <div class="skeleton skeleton--headline"></div>
-          <div class="skeleton skeleton--headline short"></div>
-          <div class="skeleton skeleton--text"></div>
-          <div class="skeleton skeleton--text"></div>
-        </article>
-        <aside class="trends" aria-labelledby="trends-title">
-          <h2 class="section-label" id="trends-title">Tendências</h2>
-          <ol class="trends__list" id="trends"></ol>
-        </aside>
-      </section>
 
       <section class="ai-filter" id="ai-filter" aria-labelledby="ai-filter-title" hidden>
         <h2 class="section-label" id="ai-filter-title">Filtrar por IA</h2>

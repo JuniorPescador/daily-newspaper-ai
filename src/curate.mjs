@@ -8,7 +8,7 @@ export const FORMATS = ['full', 'brief'];
 // Models that accept the server-side `fallbacks: "default"` retry on a safety refusal.
 const SERVER_FALLBACK_MODELS = new Set(['claude-opus-5', 'claude-fable-5-1']);
 
-const SYSTEM_PROMPT = `You are the editor of "Diário da IA", a Brazilian Portuguese newspaper about artificial intelligence published four times a day. You receive a numbered list of candidate items collected from RSS feeds over the last ~36 hours. Build this edition from them.
+const SYSTEM_PROMPT = `You are the editor of "Gazeta Neural", a Brazilian Portuguese newspaper about artificial intelligence published four times a day. You receive a numbered list of candidate items collected from RSS feeds over the last ~36 hours. Build this edition from them.
 
 Selection
 - Pick the 14-22 most relevant stories for a technical, business-minded Brazilian reader: new models and products, significant releases, research with real impact, funding, deals, earnings and other market moves, regulation and policy, and notable industry shifts.

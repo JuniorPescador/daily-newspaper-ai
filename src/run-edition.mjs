@@ -1,5 +1,6 @@
 // One edition, end to end: collect feeds → curate (Claude, or keyword fallback) → compare model
-// launches → add the "Em alta" section (trending repos, models and posts) → write DATA_DIR.
+// launches → find the lead's picture → add the "Em alta" section (trending repos, models and
+// posts) → write DATA_DIR.
 // Used by the CLI (scripts/edition.mjs) and by the Railway process (scripts/start.mjs).
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -9,6 +10,7 @@ import { addComparisons } from './compare.mjs';
 import { curateWithClaude, DEFAULT_MODEL } from './curate.mjs';
 import { assembleEdition, sourceUrlsOf } from './edition.mjs';
 import { fallbackCuration } from './fallback.mjs';
+import { addLeadImage } from './lead-image.mjs';
 import { hasEditionOn, previousEdition, readIndex, saveEdition } from './store.mjs';
 import { canonicalUrl } from './text.mjs';
 import { editionSlot, localDate } from './time.mjs';
@@ -103,6 +105,10 @@ export async function runEdition({ root, dataDir, now = new Date(), ifMissing = 
     edition.usage = { ...edition.usage, comparisons: spent };
     log.log(`Comparativos: ${spent.input_tokens} tokens de entrada, ${spent.output_tokens} de saída, ${spent.web_search_requests} buscas.`);
   }
+
+  // Without a picture the headline stands alone.
+  const image = await addLeadImage(edition, { log });
+  log.log(image ? `Imagem da manchete: ${image.credit}.` : 'A manchete saiu sem imagem.');
 
   // The section is extra: when it fails, the edition goes out without it.
   try {
