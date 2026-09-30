@@ -60,12 +60,15 @@ export function buildStories(raw, candidates, previousUrls = new Set()) {
       .map((source) => ({ ...source, publishedAt: new Date(source.publishedAt).toISOString() }));
 
     const latest = sources.reduce((max, source) => (source.publishedAt > max ? source.publishedAt : max), sources[0].publishedAt);
+    // The lead is always a full story; a brief one is just a line, so it carries no summary.
+    const brief = story.format === 'brief' && stories.length > 0;
     const built = {
       id: `s${stories.length + 1}`,
       category: story.category,
+      format: brief ? 'brief' : 'full',
       title,
-      summary: clean(story.summary, 700),
-      whyItMatters: clean(story.why_it_matters, 300),
+      summary: brief ? '' : clean(story.summary, 700),
+      whyItMatters: brief ? '' : clean(story.why_it_matters, 300),
       tags: (Array.isArray(story.tags) ? story.tags : []).map((tag) => clean(tag, 32)).filter(Boolean).slice(0, 3),
       importance: Math.min(5, Math.max(1, Math.round(Number(story.importance) || 3))),
       publishedAt: latest,

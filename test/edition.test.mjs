@@ -55,6 +55,42 @@ test('buildStories drops invented ids, reuses nothing and takes links only from 
   assert.equal(stories[1].isNew, false, 'shares a source with the previous edition');
 });
 
+test('buildStories keeps the lead full and strips the summary from brief stories', () => {
+  const raw = {
+    stories: [
+      { category: 'novidades', format: 'brief', title: 'Lead', summary: 'S', why_it_matters: 'W', tags: [], importance: 5, source_ids: ['c1'] },
+      { category: 'mercado', format: 'brief', title: 'Quick', summary: 'S', why_it_matters: 'W', tags: [], importance: 2, source_ids: ['c2'] },
+      { category: 'achados', title: 'No format', summary: 'S', why_it_matters: 'W', tags: [], importance: 3, source_ids: ['c3'] },
+      { category: 'achados', format: 'long', title: 'Unknown format', summary: 'S', why_it_matters: 'W', tags: [], importance: 3, source_ids: ['c4'] },
+    ],
+  };
+  const stories = buildStories(raw, candidates);
+  assert.deepEqual(
+    stories.map((story) => [story.title, story.format]),
+    [
+      ['Lead', 'full'],
+      ['Quick', 'brief'],
+      ['No format', 'full'],
+      ['Unknown format', 'full'],
+    ],
+  );
+  assert.equal(stories[0].summary, 'S');
+  assert.equal(stories[1].summary, '');
+  assert.equal(stories[1].whyItMatters, '');
+});
+
+test('fallback features the top stories in full and lists the rest as brief', () => {
+  const kinds = ['news', 'market', 'research'];
+  const many = Array.from({ length: 12 }, (_, n) => candidate(`m${n}`, { weight: 12 - n, kind: kinds[n % 3] }));
+  const raw = fallbackCuration(many, { now });
+  assert.equal(raw.stories.length, 12);
+  assert.deepEqual(
+    raw.stories.map((story) => story.format),
+    [...Array(7).fill('full'), ...Array(5).fill('brief')],
+  );
+  assert.equal(raw.stories[0].source_ids[0], 'm0');
+});
+
 test('assembleEdition numbers editions and keeps the number when re-run in the same slot', () => {
   const raw = fallbackCuration(candidates, { now });
   const base = { raw, candidates, now, previousUrls: new Set(), curation: { curated: false }, report: [{ name: 'News', ok: true, count: 4 }] };

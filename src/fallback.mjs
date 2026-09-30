@@ -7,6 +7,7 @@ const RESEARCH =
   /\b(paper|study|research(ers)?|benchmark|dataset|arxiv|findings?|we (propose|introduce|present)|estudo|pesquisa(dores)?|artigo cient[ií]fico)\b/i;
 
 const MAX_STORIES = 20;
+const FULL_STORIES = 7;
 const MIN_PER_CATEGORY = 5;
 const MAX_PER_CATEGORY = 8;
 
@@ -75,8 +76,9 @@ export function fallbackCuration(candidates, { now = new Date() } = {}) {
   return {
     editorial: '',
     trends: trendsFrom(candidates),
-    stories: ordered.map(({ item, category }) => ({
+    stories: ordered.map(({ item, category }, position) => ({
       category,
+      format: position < FULL_STORIES ? 'full' : 'brief',
       title: item.title,
       summary: item.snippet,
       why_it_matters: '',

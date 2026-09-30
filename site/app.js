@@ -232,6 +232,33 @@ function storyNode(story, { index, lead = false, showNew }) {
   return node;
 }
 
+/** One line in "Rápidas": category, headline linked to the first source, then outlets and time. */
+function quickNode(story, { showNew }) {
+  const href = safeHref(story.sources[0]?.url);
+  const outlets = [...new Set(story.sources.map((source) => source.name))];
+  return el(
+    'li',
+    {
+      class: 'quick__item',
+      'data-story': story.id,
+      'data-category': story.category,
+      'data-new': String(Boolean(story.isNew)),
+      'data-ais': (story.ais ?? []).join(' '),
+    },
+    [
+      el('span', { class: `cat cat--${story.category}`, text: CATEGORY_LABEL[story.category] ?? story.category }),
+      el('p', { class: 'quick__title' }, [
+        href ? el('a', { href, target: '_blank', rel: 'noopener noreferrer' }, [story.title, arrowIcon()]) : story.title,
+      ]),
+      el('p', { class: 'quick__meta' }, [
+        showNew && story.isNew ? el('span', { class: 'badge-new', text: 'Novo' }) : null,
+        el('span', { text: outlets.join(', ') }),
+        el('time', { datetime: story.publishedAt, title: fullDateTime.format(new Date(story.publishedAt)), text: ago(story.publishedAt) }),
+      ]),
+    ],
+  );
+}
+
 function renderMasthead(edition) {
   $('#today').textContent = capitalize(longDate.format(new Date(edition.generatedAt)));
   $('#edition-label').textContent = edition.label;
@@ -300,13 +327,18 @@ function matches(node, { category = state.filter, onlyNew = state.onlyNew, ai = 
   );
 }
 
+/** Every filterable story: the cards in the grid and the lines in "Rápidas". */
+function storyNodes() {
+  return [...$('#stories').children, ...$('#quick-list').children];
+}
+
 function filtersActive() {
   return state.filter !== 'all' || state.onlyNew || Boolean(state.ai);
 }
 
 /** Counts on each control reflect the other active filters. */
 function updateCounts() {
-  const nodes = [...$('#stories').children];
+  const nodes = storyNodes();
   for (const sup of document.querySelectorAll('sup[data-count]')) {
     sup.textContent = nodes.filter((node) => matches(node, { category: sup.dataset.count })).length;
   }
@@ -315,16 +347,18 @@ function updateCounts() {
 
 /** Applies the current filters; resolves once any transition has finished. */
 function applyFilters(animate) {
-  const grid = $('#stories');
   const update = () => {
     const active = filtersActive();
     let visible = 0;
-    for (const node of grid.children) {
+    let quick = 0;
+    for (const node of storyNodes()) {
       const show = matches(node) && (active || node.dataset.lead !== 'true');
       node.hidden = !show;
       if (show) visible += 1;
+      if (show && node.classList.contains('quick__item')) quick += 1;
     }
     $('#empty').hidden = visible > 0;
+    $('#quick').hidden = quick === 0;
     updateCounts();
   };
   if (animate && document.startViewTransition && !reducedMotion.matches) {
@@ -530,7 +564,10 @@ function renderNotice(title, body) {
 }
 
 function render(edition, index, isLatest, requestedAi) {
-  const [lead] = edition.stories;
+  // Editions before the "Rápidas" split have no format: every story is a full card.
+  const full = edition.stories.filter((story) => story.format !== 'brief');
+  const brief = edition.stories.filter((story) => story.format === 'brief');
+  const [lead] = full;
   const newCount = edition.stories.filter((story) => story.isNew).length;
   // When everything (or nothing) is new, the badges carry no information.
   const showNew = isLatest && newCount > 0 && newCount < edition.stories.length;
@@ -549,8 +586,11 @@ function render(edition, index, isLatest, requestedAi) {
   reveal(leadNode);
 
   const grid = $('#stories');
-  grid.replaceChildren(...edition.stories.map((story, position) => storyNode(story, { index: position + 1, showNew })));
+  grid.replaceChildren(...full.map((story, position) => storyNode(story, { index: position + 1, showNew })));
   for (const node of grid.children) reveal(node);
+  const quickList = $('#quick-list');
+  quickList.replaceChildren(...brief.map((story) => quickNode(story, { showNew })));
+  for (const node of quickList.children) reveal(node);
 
   renderAiFilter(edition.ais ?? []);
   setupControls(showNew);
