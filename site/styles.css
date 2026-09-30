@@ -3,13 +3,13 @@
 @property --bg {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f5f3ee;
+  initial-value: #fbfaf7;
 }
 
 @property --bg-elev {
   syntax: '<color>';
   inherits: true;
-  initial-value: #fbfaf7;
+  initial-value: #ffffff;
 }
 
 @property --rule {
@@ -25,8 +25,8 @@
 }
 
 :root {
-  --paper: #f5f3ee;
-  --paper-elev: #fbfaf7;
+  --paper: #fbfaf7;
+  --paper-elev: #ffffff;
   --line: #dcd9cf;
   --signal: #ff4a1c;
   --ink: #121210;
