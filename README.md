@@ -5,8 +5,8 @@ Jornal de notícias sobre inteligência artificial, com novidades, mercado e ach
 ## Como funciona
 
 1. **Coleta.** `sources.json` lista cerca de 30 fontes: laboratórios, veículos de tecnologia, newsletters, Hacker News, Hugging Face Papers e veículos brasileiros. Entram só itens das últimas 36 h (72 h para papers). Anúncios e duplicatas saem nessa etapa, e as fontes de assunto geral passam por um filtro de IA.
-2. **Curadoria.** O Claude recebe a lista numerada e monta a edição com 14 a 22 notícias. Ele junta coberturas do mesmo fato, escreve título, resumo e "por que importa" em PT-BR, separa em **Novidades / Mercado / Achados** e aponta as tendências. Os links vêm sempre dos feeds: o modelo só escolhe IDs, e IDs inventados são descartados.
-3. **Plano B.** Sem `ANTHROPIC_API_KEY`, ou se a API falhar, sai uma edição automática: os títulos e trechos originais, com a categoria definida por palavras-chave.
+2. **Curadoria.** O Claude recebe a lista numerada e monta a edição com 14 a 22 notícias. Ele junta coberturas do mesmo fato, separa em **Novidades / Mercado / Achados** e aponta as tendências. As 6 a 8 notícias mais importantes saem completas, com título, resumo e "por que importa" em PT-BR. As outras vão para as **Rápidas**: só o título, uma linha por notícia. Os links vêm sempre dos feeds: o modelo só escolhe IDs, e IDs inventados são descartados.
+3. **Plano B.** Sem `ANTHROPIC_API_KEY`, ou se a API falhar, sai uma edição automática: os títulos e trechos originais, com a categoria definida por palavras-chave. As 7 primeiras saem completas e o resto vai para as Rápidas.
 4. **Publicação.** O site roda no Railway. O mesmo processo serve a página e gera a edição todo dia às 05:00 (horário de Brasília). As edições ficam num volume do Railway e o arquivo guarda cerca de 4 meses.
 
 A página é estática, sem etapa de build: `site/index.html`, `site/styles.css` e `site/app.js`, que lê `data/latest.json`. Quem serve é o `scripts/start.mjs`.

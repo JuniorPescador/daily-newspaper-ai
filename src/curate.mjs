@@ -2,6 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 
 export const DEFAULT_MODEL = 'claude-sonnet-5';
 export const CATEGORIES = ['novidades', 'mercado', 'achados'];
+// "full" stories get a card with summary; "brief" ones are a single line in the "Rápidas" list.
+export const FORMATS = ['full', 'brief'];
 
 // Models that accept the server-side `fallbacks: "default"` retry on a safety refusal.
 const SERVER_FALLBACK_MODELS = new Set(['claude-opus-5', 'claude-fable-5-1']);
@@ -20,18 +22,22 @@ Categories
 - "mercado": funding, M&A, earnings, valuations, chips and infrastructure business, company adoption, hiring and layoffs.
 - "achados": research papers, benchmarks, studies, technical discoveries and insightful analyses.
 
+Format
+- Mark the 6-8 most important stories as "full", always including the lead. They get the complete write-up below.
+- Mark every other story as "brief": it appears as a single line in a quick list. Write only its title and leave summary and why_it_matters as empty strings.
+
 Accuracy
 - Use only ids that appear in the list.
 - Rely only on the candidate titles and snippets. Never add facts, numbers or claims they do not contain; if a detail is uncertain, leave it out.
 
 Writing (Brazilian Portuguese, clear and direct, no hype, no emojis; keep company, product and model names as they are)
-- title: informative headline, up to about 90 characters, no clickbait.
-- summary: 2-3 sentences with the key facts (who, what, figures when given).
-- why_it_matters: one sentence on the impact for the reader.
+- title: informative headline, up to about 90 characters, no clickbait. A brief story's title must carry the key fact on its own.
+- summary (full stories): 2-3 sentences with the key facts (who, what, figures when given).
+- why_it_matters (full stories): one sentence on the impact for the reader.
 - tags: 1-3 short tags (companies or themes).
 - importance: integer from 1 (minor) to 5 (major).
 
-Order stories from most to least important; the first one is the lead of the edition.
+List the full stories first, then the brief ones, each group from most to least important; the first story is the lead of the edition.
 editorial: one or two sentences that open the edition and capture the tone of the day.
 trends: 3-5 themes that show up across several stories right now (label: 2-4 words; note: one short sentence).`;
 
@@ -54,6 +60,7 @@ const OUTPUT_SCHEMA = {
         type: 'object',
         properties: {
           category: { type: 'string', enum: CATEGORIES },
+          format: { type: 'string', enum: FORMATS },
           title: { type: 'string' },
           summary: { type: 'string' },
           why_it_matters: { type: 'string' },
@@ -61,7 +68,7 @@ const OUTPUT_SCHEMA = {
           importance: { type: 'integer' },
           source_ids: { type: 'array', items: { type: 'string' } },
         },
-        required: ['category', 'title', 'summary', 'why_it_matters', 'tags', 'importance', 'source_ids'],
+        required: ['category', 'format', 'title', 'summary', 'why_it_matters', 'tags', 'importance', 'source_ids'],
         additionalProperties: false,
       },
     },
