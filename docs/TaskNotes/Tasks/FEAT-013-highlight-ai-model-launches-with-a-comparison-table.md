@@ -1,8 +1,9 @@
 ---
 uid: feat-013
-status: in-progress
+status: done
 priority: normal
 scheduled: 2026-09-26
+completed: 2026-09-30
 timeEstimate: 240
 pomodoros: 0
 designDoc: '[[docs/superpowers/specs/2026-09-26-model-launch-comparison-design.md]]'
@@ -30,7 +31,7 @@ Renumbered from FEAT-005 on 2026-09-30: the work sat uncommitted after a lost co
 - [x] src/run-edition.mjs wires comparisons (max 2, failures never break the edition); moved from scripts/edition.mjs when merging main
 - [x] Launch card + comparison table in the page (light/dark, mobile)
 - [x] Merge main (Rápidas, Hoje na edição, reading time); launch stories are always full
-- [ ] Browser check with a sample edition + PR (Closes #13)
+- [x] Browser check with a sample edition (new format: Rápidas + Hoje na edição) + PR (Closes #13)
 
 ## Related
 

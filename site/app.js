@@ -488,7 +488,9 @@ async function goToStory(id) {
   if (!visibleStory(id)) await clearFilters();
   const target = visibleStory(id);
   if (!target) return;
-  target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'center' });
+  // Top-align below the sticky bars: tall cards (the lead, a launch with its table) would lose their head if centered.
+  const offset = $('.topbar').offsetHeight + $('#controls').offsetHeight + 16;
+  window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
   target.classList.remove('fx-flash');
   void target.offsetWidth;
   target.classList.add('fx-flash');
