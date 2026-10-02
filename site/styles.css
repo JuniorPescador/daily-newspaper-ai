@@ -1883,7 +1883,7 @@ html {
   isolation: isolate;
 }
 
-.fx-aurora {
+.fx-neural {
   position: absolute;
   z-index: -1;
   top: calc(-1 * var(--topbar) - 28px);
@@ -1893,11 +1893,11 @@ html {
   pointer-events: none;
   opacity: 0;
   transition: opacity 1.4s ease;
-  -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent);
-  mask-image: linear-gradient(to bottom, #000 50%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent);
 }
 
-.fx-aurora.is-ready {
+.fx-neural.is-ready {
   opacity: 1;
 }
 
