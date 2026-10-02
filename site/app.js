@@ -50,6 +50,8 @@ function el(tag, attrs = {}, children = []) {
 }
 
 function safeHref(url, base) {
+  // With a base, new URL(undefined, base) would resolve to ".../undefined".
+  if (!url) return null;
   try {
     const parsed = new URL(url, base);
     return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? parsed.href : null;
@@ -265,7 +267,8 @@ function launchModelNode(story) {
 
 /** The lead's picture, linked to the story, with the outlet credited. Images may be relative to the page. */
 function leadMedia(story, href) {
-  const src = safeHref(story.image?.url, window.location.href);
+  if (!story.image?.url) return null;
+  const src = safeHref(story.image.url, window.location.href);
   if (!src) return null;
   // No referrer: some outlets refuse pictures shown on other sites when they see where the request came from.
   const img = el('img', { src, alt: story.image.alt ?? '', decoding: 'async', referrerpolicy: 'no-referrer' });
