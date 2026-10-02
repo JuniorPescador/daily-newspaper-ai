@@ -1,11 +1,23 @@
 ---
 uid: feat-016
-status: in-progress
+status: done
 priority: normal
 scheduled: 2026-10-02
+completed: 2026-10-02
 timeEstimate: 120
 pomodoros: 0
 firstStartedAt: 2026-10-02T15:49:37.446672Z
+filesTouched:
+- README.md
+- docs/TaskNotes/Tasks/FEAT-016-neural-network-masthead-that-draws-a-newspaper-page.md
+- site/fx/aurora.js
+- site/fx/index.js
+- site/fx/neural.js
+- site/styles.css
+commits:
+- 446f0c9
+- 8a5da9a
+- d1635bf
 tags:
 - task
 - feat
