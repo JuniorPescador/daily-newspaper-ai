@@ -1,4 +1,4 @@
-// Visual effects, loaded after the edition renders: aurora behind the masthead, depth on the
+// Visual effects, loaded after the edition renders: a neural network behind the masthead, depth on the
 // cards, the 3D map of the day and the 3D logo of the selected AI. Each one is optional: if it
 // fails (no WebGL, CDN down…), the page keeps working without it.
 
@@ -9,7 +9,7 @@ function idle() {
 }
 
 const EFFECTS = {
-  aurora: () => import('./aurora.js').then((module) => module.startAurora()),
+  neural: () => import('./neural.js').then((module) => module.startNeural()),
   depth: () => import('./depth.js').then((module) => module.startDepth()),
   map: (edition) => import('./map3d.js').then((module) => module.startMap(edition)),
   // Nothing shows until an AI is selected, so the logo can wait for an idle moment.
