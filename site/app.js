@@ -358,7 +358,7 @@ function renderMasthead(edition) {
   const reading = $('#reading-time');
   reading.textContent = `Leitura: ~${readingMinutes(edition)} min`;
   reading.title = 'Tempo estimado para ler os resumos desta edição, a 200 palavras por minuto';
-  document.title = `Gazeta Neural · ${edition.label}`;
+  document.title = `Jornal Presenza · ${edition.label}`;
 }
 
 function renderStatus(edition, isLatest) {

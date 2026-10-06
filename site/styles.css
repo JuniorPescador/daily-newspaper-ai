@@ -21,14 +21,14 @@
 @property --accent {
   syntax: '<color>';
   inherits: true;
-  initial-value: #ff4a1c;
+  initial-value: #b5545e;
 }
 
 :root {
   --paper: #fbfaf7;
   --paper-elev: #ffffff;
   --line: #dcd9cf;
-  --signal: #ff4a1c;
+  --signal: #b5545e;
   --ink: #121210;
   --ink-2: #3a3935;
   --muted: #74726a;
@@ -40,7 +40,7 @@
   --skeleton-shine: #f3f1ea;
   /* How a selected AI (app.js sets --ai-color) shows up in this theme. */
   --ai-tint: 7%;
-  --ai-accent: color-mix(in oklab, var(--ai-color, #ff4a1c) 88%, #000);
+  --ai-accent: color-mix(in oklab, var(--ai-color, #b5545e) 88%, #000);
 
   --bg: var(--paper);
   --bg-elev: var(--paper-elev);
@@ -68,7 +68,7 @@
     --paper: #0d0d0c;
     --paper-elev: #161614;
     --line: #2b2a27;
-    --signal: #ff6b3d;
+    --signal: #d27a83;
     --ink: #efeee9;
     --ink-2: #c8c6bf;
     --muted: #8e8c84;
@@ -79,7 +79,7 @@
     --skeleton: #1d1d1b;
     --skeleton-shine: #292926;
     --ai-tint: 11%;
-    --ai-accent: color-mix(in oklab, var(--ai-color, #ff6b3d) 78%, #fff);
+    --ai-accent: color-mix(in oklab, var(--ai-color, #d27a83) 78%, #fff);
     color-scheme: dark;
   }
 }
@@ -88,7 +88,7 @@
   --paper: #0d0d0c;
   --paper-elev: #161614;
   --line: #2b2a27;
-  --signal: #ff6b3d;
+  --signal: #d27a83;
   --ink: #efeee9;
   --ink-2: #c8c6bf;
   --muted: #8e8c84;
@@ -99,7 +99,7 @@
   --skeleton: #1d1d1b;
   --skeleton-shine: #292926;
   --ai-tint: 11%;
-  --ai-accent: color-mix(in oklab, var(--ai-color, #ff6b3d) 78%, #fff);
+  --ai-accent: color-mix(in oklab, var(--ai-color, #d27a83) 78%, #fff);
   color-scheme: dark;
 }
 
