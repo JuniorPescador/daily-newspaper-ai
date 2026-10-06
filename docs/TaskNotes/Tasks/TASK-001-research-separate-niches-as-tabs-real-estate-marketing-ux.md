@@ -20,7 +20,10 @@ ai:
 Mirror of GitHub issue JuniorPescador/daily-newspaper-ai#52. Market research for adding niche tabs (mercado imobiliário, marketing, UX) next to AI: competitors, gaps, verified RSS sources, Em alta data, audience, product shape, brand architecture and the Presenza name check.
 
 ## Checklist
-- [ ] Research per niche (sources verified)
-- [ ] Product shape and brand architecture
-- [ ] Report shared and linked on #52
+- [x] Research per niche (sources verified)
+- [x] Product shape and brand architecture
+- [x] Report shared and linked on #52
 - [ ] Operator picks approach; implementation issue(s) opened
+
+## Progress
+- 2026-10-06: report at https://claude.ai/code/artifact/9103fcb3-3c0f-498a-99b9-975349d4a6a3, summary on #52. Recommends Marketing daily → real estate daily → UX weekly, master brand with tabs, validation via waitlist + shadow mode.
