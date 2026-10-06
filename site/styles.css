@@ -1,4 +1,4 @@
-/* Page colors are derived tokens so a selected AI can re-tint them; registering them
+/* Page colors are derived tokens; registering them
    as <color> lets them animate. */
 @property --bg {
   syntax: '<color>';
@@ -39,7 +39,6 @@
   --skeleton: #e7e4db;
   --skeleton-shine: #f3f1ea;
   /* How a selected AI (app.js sets --ai-color) shows up in this theme. */
-  --ai-tint: 7%;
   --ai-accent: color-mix(in oklab, var(--ai-color, #b5545e) 88%, #000);
 
   --bg: var(--paper);
@@ -78,7 +77,6 @@
     --cat-achados: #b596ff;
     --skeleton: #1d1d1b;
     --skeleton-shine: #292926;
-    --ai-tint: 11%;
     --ai-accent: color-mix(in oklab, var(--ai-color, #d27a83) 78%, #fff);
     color-scheme: dark;
   }
@@ -98,17 +96,20 @@
   --cat-achados: #b596ff;
   --skeleton: #1d1d1b;
   --skeleton-shine: #292926;
-  --ai-tint: 11%;
   --ai-accent: color-mix(in oklab, var(--ai-color, #d27a83) 78%, #fff);
   color-scheme: dark;
 }
 
-/* A selected AI re-tints paper, rules and accent. */
-:root[data-ai] {
-  --bg: color-mix(in oklab, var(--ai-color) var(--ai-tint), var(--paper));
-  --bg-elev: color-mix(in oklab, var(--ai-color) calc(var(--ai-tint) * 0.6), var(--paper-elev));
-  --rule: color-mix(in oklab, var(--ai-color) 22%, var(--line));
+/* A selected AI leaves the page in the brand colors and tints only the details of the stories
+   it shows: top rule, number, "Por que importa" and the "Novo" badge. */
+:root[data-ai] :is(.story, .quick__item) {
   --accent: var(--ai-accent);
+  --accent-soft: color-mix(in srgb, var(--accent) 13%, transparent);
+  border-top-color: var(--accent);
+}
+
+:root[data-ai] .story__index {
+  color: var(--accent);
 }
 
 *,
