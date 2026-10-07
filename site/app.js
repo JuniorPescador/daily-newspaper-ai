@@ -1,3 +1,4 @@
+import { renderTabs, setupTheme } from './chrome.js';
 import { readingMinutes } from './reading-time.js';
 import { ago, duration } from './relative-time.js';
 
@@ -86,22 +87,7 @@ async function loadJson(url) {
   return response.json();
 }
 
-/* ---------- chrome: theme, progress, top bar ---------- */
-
-function setupTheme() {
-  const toggle = $('#theme-toggle');
-  const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
-  toggle.addEventListener('click', () => {
-    const current = document.documentElement.dataset.theme ?? (systemDark.matches ? 'dark' : 'light');
-    const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next;
-    try {
-      localStorage.setItem('theme', next);
-    } catch {
-      // storage unavailable: the choice lasts for this visit only
-    }
-  });
-}
+/* ---------- chrome: progress, top bar (theme and tabs live in chrome.js) ---------- */
 
 function setupScrollEffects() {
   const bar = $('.progress span');
@@ -762,6 +748,7 @@ function render(edition, index, isLatest, requestedAi) {
 
 async function main() {
   setupTheme();
+  renderTabs($('#niches'), 'ia');
   setupScrollEffects();
 
   const params = new URLSearchParams(window.location.search);
