@@ -25,6 +25,7 @@ Mirror of GitHub issue JuniorPescador/daily-newspaper-ai#57. Daily Marketing edi
 - [x] Collector fixes
 - [x] Shadow run + private storage
 - [x] Review path for the operator
+- [ ] First curated shadow edition checked on Railway (deployed 2026-10-07, 5690b3e3; `railway ssh` needs an SSH key registered by the operator, otherwise the 05:00 run on 2026-10-08 makes the first one)
 
 ## Implementation
 - `niches/marketing.json`: reader, focus, skip list, categories (plataformas / mercado / ia) and 23 feeds (12 PT, 11 EN), all answering on 2026-10-07 (288 items in 36 h, 131 candidates).
