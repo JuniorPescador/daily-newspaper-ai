@@ -1,8 +1,9 @@
 ---
 uid: feat-017
-status: open
+status: done
 priority: normal
 scheduled: 2026-10-06
+completed: 2026-10-07
 timeEstimate: 90
 pomodoros: 0
 createdBy: JuniorPescador
