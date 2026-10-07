@@ -35,6 +35,10 @@ O Claude escolhe os itens e escreve uma linha em PT-BR sobre cada um, numa chama
 - **Me avise:** cada página "em breve" tem uma lista de espera, com e-mail, consentimento e aviso de privacidade. Os cadastros ficam em `private/waitlist.jsonl`. A lista só abre quando `PRIVACY_CONTACT` em `site/niches.js` tiver um e-mail de contato, exigido pela LGPD para quem quiser sair da lista. Enquanto ele for `null`, a página diz que a lista abre em breve e o servidor recusa cadastros.
 - **Privacidade:** a pasta `private/` nunca é servida em `/data/`.
 
+**Edição sombra.** Antes de abrir uma aba, a edição dela é gerada todo dia, logo depois da edição de IA, mas não aparece no site. Serve para conferir se há notícia boa suficiente antes de lançar. Hoje só Marketing tem edição sombra. As fontes, o leitor, o foco e as seções ficam em `niches/marketing.json`, e o código em `src/shadow.mjs`. A curadoria segue as regras da edição de IA, com as seções Plataformas, Mercado e IA no marketing, e não completa a edição com notícia fraca: o número de notícias escolhidas mostra quanto conteúdo bom houve no dia. As edições ficam em `private/shadow/marketing/`, dentro da pasta de dados, e o arquivo guarda as últimas 31. A seção "Em alta" da aba fica para quando ela abrir.
+
+O coletor também lê datas escritas em português ("ter, 06 out 2026") e, nas fontes com `pages`, busca as páginas seguintes do feed do WordPress, que mostra só os 10 posts mais recentes.
+
 ## Rodar localmente
 
 ```bash
@@ -44,6 +48,8 @@ pnpm edition --no-ai  # força a edição automática
 pnpm dev              # só a página, em http://localhost:4321
 pnpm start            # página + edição diária às 05:00, como no Railway (porta 8080)
 pnpm waitlist         # visitas, e-mails e conversão de cada aba (--csv exporta os e-mails)
+pnpm shadow --run     # gera a edição sombra de Marketing agora (--no-ai: só a coleta)
+pnpm shadow           # mostra a última edição sombra (--list: uma linha por dia)
 pnpm test
 ```
 
@@ -72,6 +78,8 @@ O serviço `web` do projeto **daily-newspaper-ai** roda `node scripts/start.mjs`
 
 **Ver o interesse nas abas.** No mesmo terminal (`railway ssh`), rode `node scripts/waitlist.mjs`. Ele mostra as visitas dos últimos 7 dias e do total, os e-mails e a conversão de cada aba. Com `--csv`, lista os e-mails para levar a uma ferramenta de newsletter.
 
+**Ler a edição sombra.** No mesmo terminal, `node scripts/shadow.mjs` mostra a última edição sombra de Marketing completa: notícias por seção, resumos, fontes e quanto cada fonte trouxe. `--list` mostra uma linha por dia, com itens coletados e notícias escolhidas, `--id 2026-10-08-05h` abre um dia e `--run` gera uma agora.
+
 ## Custo estimado da IA
 
 Cada edição envia cerca de 12 mil tokens (as ~120 notícias candidatas) e recebe de 5 a 9 mil. É 1 edição por dia:
@@ -87,6 +95,8 @@ O consumo real de cada edição fica em `usage`, dentro do JSON da edição.
 A seção "Em alta" faz uma chamada a mais, bem menor: cerca de 4 mil tokens de entrada e até 2 mil de saída. Com o `claude-sonnet-5`, isso dá uns US$ 0,02 por edição, perto de US$ 0,70 por mês. O consumo fica em `trending.usage`.
 
 Nos dias com lançamento de modelo, cada comparativo é uma chamada extra com busca e leitura de páginas (no máximo 2 por edição). O consumo dela fica em `usage.comparisons`.
+
+A edição sombra de Marketing é outra chamada do mesmo tamanho da edição de IA, cerca de US$ 0,12 por dia, ou US$ 3,60 por mês. O consumo fica em `edition.usage` de cada arquivo da sombra.
 
 ## Limitações
 

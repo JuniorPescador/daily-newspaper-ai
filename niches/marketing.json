@@ -1,0 +1,47 @@
+{
+  "id": "marketing",
+  "label": "Marketing",
+  "reader": "Brazilian marketing professionals who run paid media, SEO, social media and CRM at small and mid-size companies, digital agencies and in-house teams",
+  "focus": "changes to ad platforms, search engines and social networks (Meta, Google, YouTube, TikTok, LinkedIn, X, Pinterest, Amazon and retail media) and what they mean for campaigns; SEO and search changes, including AI search and answer engines; AI products for ads, creative and content; notable campaigns, account moves and brand or agency business, with priority to Brazil; ad spending, measurement, privacy and regulation that affect marketing; studies with numbers about media, audiences and consumers",
+  "skip": "people moves and job changes, award shortlists, event promotion, sponsored posts, how-to tutorials and evergreen tips, and opinion pieces that carry no news",
+  "categories": {
+    "plataformas": {
+      "label": "Plataformas",
+      "description": "changes to ad platforms, search engines, social networks and marketing tools: new features, policy and pricing changes, algorithm, targeting and measurement updates"
+    },
+    "mercado": {
+      "label": "Mercado",
+      "description": "campaigns, brand and agency business, account moves, media and retail-media deals, ad spending, results of marketing companies, regulation and privacy"
+    },
+    "ia": {
+      "label": "IA no marketing",
+      "description": "AI in marketing: AI ad products, generative AI in creative and content, AI search and answer engines (GEO), studies on how marketers use AI"
+    }
+  },
+  "sources": [
+    { "id": "meio-e-mensagem", "name": "Meio & Mensagem", "url": "https://www.meioemensagem.com.br/feed", "kind": "news", "lang": "pt", "weight": 3, "max": 14, "pages": 2 },
+    { "id": "propmark", "name": "Propmark", "url": "https://propmark.com.br/feed/", "kind": "news", "lang": "pt", "weight": 2, "max": 10, "pages": 3 },
+    { "id": "adnews", "name": "AdNews", "url": "https://adnews.com.br/feed/", "kind": "news", "lang": "pt", "weight": 2, "max": 10, "pages": 2 },
+    { "id": "b9", "name": "B9", "url": "https://www.b9.com.br/feed/", "kind": "news", "lang": "pt", "weight": 2, "max": 4 },
+    { "id": "iab-brasil", "name": "IAB Brasil", "url": "https://www.iabbrasil.com.br/feed/", "kind": "market", "lang": "pt", "weight": 2, "max": 4 },
+    { "id": "grandes-nomes", "name": "Grandes Nomes da Propaganda", "url": "https://grandesnomesdapropaganda.com.br/feed/", "kind": "news", "lang": "pt", "weight": 1, "max": 8, "pages": 3 },
+    { "id": "portal-da-propaganda", "name": "Portal da Propaganda", "url": "https://www.portaldapropaganda.com.br/noticias/feed/", "kind": "news", "lang": "pt", "weight": 1, "max": 6 },
+    { "id": "gkpb", "name": "GKPB", "url": "https://gkpb.com.br/feed/", "kind": "news", "lang": "pt", "weight": 1, "max": 6 },
+    { "id": "nosso-meio", "name": "Nosso Meio", "url": "https://nossomeio.com.br/feed/", "kind": "news", "lang": "pt", "weight": 1, "max": 5 },
+    { "id": "mobile-time", "name": "Mobile Time", "url": "https://www.mobiletime.com.br/feed/", "kind": "news", "lang": "pt", "weight": 1, "max": 5 },
+    { "id": "consumidor-moderno", "name": "Consumidor Moderno", "url": "https://consumidormoderno.com.br/feed/", "kind": "news", "lang": "pt", "weight": 1, "max": 4 },
+    { "id": "promoview", "name": "Promoview", "url": "https://www.promoview.com.br/feed/", "kind": "news", "lang": "pt", "weight": 1, "max": 3 },
+
+    { "id": "ppc-land", "name": "PPC Land", "url": "https://ppc.land/rss/", "kind": "platforms", "weight": 3, "max": 14 },
+    { "id": "google-ads", "name": "Google Ads & Commerce", "url": "https://blog.google/products/ads-commerce/rss/", "kind": "platform", "weight": 3, "max": 4, "windowHours": 72 },
+    { "id": "meta", "name": "Meta Newsroom", "url": "https://about.fb.com/feed/", "kind": "platform", "weight": 2, "max": 4, "windowHours": 72 },
+    { "id": "se-roundtable", "name": "Search Engine Roundtable", "url": "https://www.seroundtable.com/index.xml", "kind": "platforms", "weight": 2, "max": 8 },
+    { "id": "social-media-today", "name": "Social Media Today", "url": "https://www.socialmediatoday.com/feeds/news/", "kind": "platforms", "weight": 2, "max": 8 },
+    { "id": "search-engine-journal", "name": "Search Engine Journal", "url": "https://www.searchenginejournal.com/feed/", "kind": "platforms", "weight": 2, "max": 6 },
+    { "id": "marketing-dive", "name": "Marketing Dive", "url": "https://www.marketingdive.com/feeds/news/", "kind": "news", "weight": 2, "max": 5 },
+    { "id": "digiday", "name": "Digiday", "url": "https://digiday.com/feed/", "kind": "news", "weight": 1, "max": 5 },
+    { "id": "adweek", "name": "Adweek", "url": "https://www.adweek.com/feed/", "kind": "news", "weight": 1, "max": 6 },
+    { "id": "adexchanger", "name": "AdExchanger", "url": "https://www.adexchanger.com/feed/", "kind": "news", "weight": 1, "max": 4 },
+    { "id": "tubefilter", "name": "Tubefilter", "url": "https://www.tubefilter.com/feed/", "kind": "news", "weight": 1, "max": 3 }
+  ]
+}

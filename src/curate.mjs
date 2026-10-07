@@ -91,6 +91,58 @@ const OUTPUT_SCHEMA = {
   additionalProperties: false,
 };
 
+/**
+ * Prompt for a section other than AI (see niches/<id>.json): same rules as the AI edition, with
+ * the section's reader, focus and categories, no model-launch fields, and no padding.
+ */
+export function nicheSystemPrompt(niche) {
+  const categories = Object.entries(niche.categories)
+    .map(([key, category]) => `- "${key}": ${category.description}.`)
+    .join('\n');
+  return `You are the editor of the ${niche.label} section of "Jornal Presenza", a Brazilian Portuguese daily newspaper. Its reader: ${niche.reader}. You receive a numbered list of candidate items collected from RSS feeds over the last ~36 hours. Build today's edition from them.
+
+Selection
+- Pick the 14-22 most relevant stories for that reader: ${niche.focus}.
+- Skip ${niche.skip}.
+- When several items cover the same event, including the same press release published by several outlets, merge them into one story and list every id in source_ids.
+- Items marked [already published] appeared in the previous edition. Keep one only if it is still among the most important stories of the day; otherwise prefer fresh items.
+- Aim for a balanced edition with at least 3 stories per category when the candidates allow it.
+- If fewer than 14 items are worth the reader's time, publish fewer. Never pad the edition with weak items.
+
+Categories
+${categories}
+
+Format
+- Mark the 6-8 most important stories as "full", always including the lead. They get the complete write-up below.
+- Mark every other story as "brief": it appears as a single line in a quick list. Write only its title and leave summary and why_it_matters as empty strings.
+
+Accuracy
+- Use only ids that appear in the list.
+- Rely only on the candidate titles and snippets. Never add facts, numbers or claims they do not contain; if a detail is uncertain, leave it out.
+
+Writing (Brazilian Portuguese, clear and direct, no hype, no emojis; keep company, product and brand names as they are)
+- title: informative headline, up to about 90 characters, no clickbait. A brief story's title must carry the key fact on its own.
+- summary (full stories): 2-3 sentences with the key facts (who, what, figures when given).
+- why_it_matters (full stories): one sentence on what changes for the reader's work.
+- tags: 1-3 short tags (companies or themes).
+- importance: integer from 1 (minor) to 5 (major).
+
+List the full stories first, then the brief ones, each group from most to least important; the first story is the lead of the edition.
+editorial: one or two sentences that open the edition and capture the tone of the day.
+highlights: 3-5 short lines (up to about 70 characters each) giving an at-a-glance overview of the edition's most important stories, in order of importance and starting with the lead. Each line covers one story and points to it through source_id: one of that story's source_ids.
+trends: 3-5 themes that show up across several stories right now (label: 2-4 words; note: one short sentence).`;
+}
+
+/** The AI edition's output schema with the section's categories and without the launch fields. */
+export function nicheSchema(niche) {
+  const story = structuredClone(OUTPUT_SCHEMA.properties.stories.items);
+  story.properties.category.enum = Object.keys(niche.categories);
+  delete story.properties.launch_model;
+  delete story.properties.launch_maker;
+  story.required = story.required.filter((key) => !key.startsWith('launch_'));
+  return { ...OUTPUT_SCHEMA, properties: { ...OUTPUT_SCHEMA.properties, stories: { type: 'array', items: story } } };
+}
+
 export class CurationError extends Error {}
 
 function ageLabel(date, now) {
@@ -171,4 +223,11 @@ export async function curateWithClaude({ candidates, now, previousUrls, canonica
   const list = formatCandidates(candidates, { now, previousUrls, canonical });
   const content = `Current time: ${now.toISOString()}\n\n${candidates.length} candidates:\n\n${list}`;
   return requestJson({ client, model, system: SYSTEM_PROMPT, content, schema: OUTPUT_SCHEMA });
+}
+
+/** Curates a section other than AI (niches/<id>.json) the same way. */
+export async function curateNiche({ niche, candidates, now, previousUrls, canonical, model = DEFAULT_MODEL, client = new Anthropic() }) {
+  const list = formatCandidates(candidates, { now, previousUrls, canonical });
+  const content = `Current time: ${now.toISOString()}\n\n${candidates.length} candidates:\n\n${list}`;
+  return requestJson({ client, model, system: nicheSystemPrompt(niche), content, schema: nicheSchema(niche) });
 }

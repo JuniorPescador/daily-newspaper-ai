@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Railway entry point: serves the site and publishes the edition every day at 05:00 São Paulo.
+// Railway entry point: serves the site and publishes the edition every day at 05:00 São Paulo,
+// followed by the shadow editions of the "em breve" tabs (src/shadow.mjs).
 // Editions live in DATA_DIR (the Railway volume). Env: PORT, DATA_DIR, ANTHROPIC_API_KEY, CLAUDE_MODEL.
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,6 +9,7 @@ import { backfillAis } from '../src/backfill.mjs';
 import { runEdition } from '../src/run-edition.mjs';
 import { shouldCatchUp } from '../src/schedule.mjs';
 import { createSiteServer } from '../src/server.mjs';
+import { runShadowEdition, SHADOW_NICHES } from '../src/shadow.mjs';
 import { readIndex } from '../src/store.mjs';
 import { nextRunAt } from '../src/time.mjs';
 import { createVisitCounter } from '../src/visits.mjs';
@@ -32,9 +34,16 @@ function publish(reason) {
     } catch (error) {
       console.error(`✗ ${error.message}`);
       lastRun = { at: new Date().toISOString(), ok: false, error: error.message };
-    } finally {
-      running = null;
     }
+    // Shadow editions of the "em breve" tabs, after the real one; never published.
+    for (const nicheId of SHADOW_NICHES) {
+      try {
+        await runShadowEdition({ root, dataDir, nicheId });
+      } catch (error) {
+        console.error(`✗ edição sombra ${nicheId}: ${error.message}`);
+      }
+    }
+    running = null;
   })();
   return running;
 }

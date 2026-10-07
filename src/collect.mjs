@@ -57,10 +57,23 @@ function linkOf(entry) {
   return /^https?:\/\//.test(guid) ? guid : null;
 }
 
+const PT_MONTHS = { jan: 'Jan', fev: 'Feb', mar: 'Mar', abr: 'Apr', mai: 'May', jun: 'Jun', jul: 'Jul', ago: 'Aug', set: 'Sep', out: 'Oct', nov: 'Nov', dez: 'Dec' };
+
+/** Feed date, including RFC 822 dates written in Portuguese ("ter, 06 out 2026 17:16:59 -0300"). */
+export function parseFeedDate(raw) {
+  if (!raw) return null;
+  let date = new Date(raw);
+  if (Number.isNaN(date.getTime())) {
+    const english = raw
+      .replace(/^[^\d,]*,\s*/, '')
+      .replace(/\p{L}{3,}/gu, (word) => PT_MONTHS[word.slice(0, 3).toLowerCase()] ?? word);
+    date = new Date(english);
+  }
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function dateOf(entry) {
-  const raw = textOf(entry.pubDate ?? entry['dc:date'] ?? entry.published ?? entry.updated ?? entry['a10:updated']);
-  const date = raw ? new Date(raw) : null;
-  return date && !Number.isNaN(date.getTime()) ? date : null;
+  return parseFeedDate(textOf(entry.pubDate ?? entry['dc:date'] ?? entry.published ?? entry.updated ?? entry['a10:updated']));
 }
 
 function snippetOf(entry) {
@@ -101,22 +114,46 @@ export function parseHfPapers(body) {
     .sort((a, b) => b.upvotes - a.upvotes);
 }
 
-async function fetchSource(source) {
-  if (source.type === 'hf-papers') return parseHfPapers(await fetchText(source.url, 'application/json'));
-  return parseFeed(await fetchText(source.url, 'application/rss+xml, application/atom+xml, application/xml, text/xml'));
+const FEED_ACCEPT = 'application/rss+xml, application/atom+xml, application/xml, text/xml';
+
+/** Page `n` of a WordPress feed (`?paged=n`); page 1 is the feed itself. */
+export function feedPageUrl(url, page) {
+  if (page === 1) return url;
+  const next = new URL(url);
+  next.searchParams.set('paged', String(page));
+  return next.href;
 }
 
-/** Pick recent items from one source, newest first (papers keep their upvote order). */
-export function selectFromSource(items, source, now, defaultWindowHours) {
+async function fetchSource(source) {
+  if (source.type === 'hf-papers') return parseHfPapers(await fetchText(source.url, 'application/json'));
+  // Some WordPress feeds list only the last 10 posts, a few hours of a busy outlet: `pages` reads
+  // the next ones too. Only the first page has to answer.
+  const pages = Array.from({ length: Math.max(1, source.pages ?? 1) }, (_, index) => feedPageUrl(source.url, index + 1));
+  const [first, ...rest] = await Promise.allSettled(pages.map((url) => fetchText(url, FEED_ACCEPT)));
+  if (first.status === 'rejected') throw first.reason;
+  return [first, ...rest].filter((page) => page.status === 'fulfilled').flatMap((page) => parseFeed(page.value));
+}
+
+/** Items of one source inside its time window, without promotions or off-topic posts. */
+export function relevantItems(items, source, now, defaultWindowHours) {
   const windowMs = (source.windowHours ?? defaultWindowHours) * 3_600_000;
+  const seen = new Set();
   const recent = items.filter((item) => {
     if (!item.publishedAt || Number.isNaN(item.publishedAt.getTime())) return false;
+    // Feed pages can overlap when a post comes out while they are read.
+    if (seen.has(item.url)) return false;
+    seen.add(item.url);
     const age = now - item.publishedAt;
     // Small allowance for feeds whose clocks run slightly ahead.
     return age <= windowMs && age >= -3_600_000;
   });
   const editorial = recent.filter((item) => !PROMOTIONAL.test(item.title));
-  const relevant = source.filter === 'ai' ? editorial.filter((item) => isAiRelated(`${item.title} ${item.snippet}`)) : editorial;
+  return source.filter === 'ai' ? editorial.filter((item) => isAiRelated(`${item.title} ${item.snippet}`)) : editorial;
+}
+
+/** Pick recent items from one source, newest first (papers keep their upvote order). */
+export function selectFromSource(items, source, now, defaultWindowHours) {
+  const relevant = relevantItems(items, source, now, defaultWindowHours);
   const ordered = source.type === 'hf-papers' ? relevant : relevant.sort((a, b) => b.publishedAt - a.publishedAt);
   return ordered.slice(0, source.max ?? 10).map((item) => ({
     ...item,
@@ -177,8 +214,10 @@ export async function collect({ sources, now = new Date(), windowHours = 36, max
       return;
     }
     const items = selectFromSource(result.value, source, now, windowHours);
-    report.push({ id: source.id, name: source.name, ok: true, count: items.length });
-    log(`  ✓ ${source.name}: ${items.length}`);
+    // `available`: everything the source had in the window, before the per-source cap.
+    const available = relevantItems(result.value, source, now, windowHours).length;
+    report.push({ id: source.id, name: source.name, ok: true, count: items.length, available });
+    log(`  ✓ ${source.name}: ${items.length}${available > items.length ? ` de ${available}` : ''}`);
     picked.push(...items);
   });
 
