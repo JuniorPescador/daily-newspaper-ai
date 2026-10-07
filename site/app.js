@@ -532,7 +532,7 @@ function syncAiUi() {
     $('#active-ai-label').textContent = ai.label;
   }
 
-  // The whole page takes the selected AI's color (see :root[data-ai] in styles.css).
+  // The stories' details take the selected AI's color; the page keeps the brand (see :root[data-ai] in styles.css).
   const root = document.documentElement;
   if (ai) {
     root.style.setProperty('--ai-color', ai.color);

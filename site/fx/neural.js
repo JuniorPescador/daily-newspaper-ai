@@ -1,7 +1,7 @@
 // Neural network behind the masthead: a loose 3D cloud of neurons that keep drifting, wiring and
 // unwiring at random like synapses, with signals firing through them. The cloud sways slowly (and
-// with the pointer), so near links slide past far ones. Tinted with the page accent, so it follows
-// the selected AI's color. Plain 2D canvas with a small perspective projection, no library.
+// with the pointer), so near links slide past far ones. Tinted with the page accent (the brand
+// color; an AI filter does not change it). Plain 2D canvas with a small perspective projection, no library.
 import { cssVar, finePointer, isDarkTheme, lerp, onPaletteChange, reducedMotion, toRgb, varRgb, watchVisibility } from './shared.js';
 
 const TAU = Math.PI * 2;
