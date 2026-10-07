@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Served at /marketing, /imoveis and /ux: assets resolve from the site root. -->
+    <base href="/" />
+    <title>Jornal Presenza · Em breve</title>
+    <meta name="description" content="Novas editorias do Jornal Presenza: marketing, imóveis e UX, com as fontes. Em breve." />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0d0c" media="(prefers-color-scheme: dark)" />
+    <meta property="og:title" content="Jornal Presenza · Em breve" />
+    <meta property="og:description" content="Novas editorias do Jornal Presenza: marketing, imóveis e UX. Em breve." />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
+    <script type="module" src="soon.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar__inner">
+        <a class="brand" href="./" aria-label="Jornal Presenza, edição de IA">
+          <svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="8" y="6" width="48" height="6" rx="1" />
+            <g class="brand__links"><path d="M16 30 32 24M16 30 32 38M16 30 32 52M16 46 32 24M16 46 32 38M16 46 32 52M32 24 48 38M32 38 48 38M32 52 48 38" /></g>
+            <circle cx="16" cy="30" r="5" /><circle cx="16" cy="46" r="5" /><circle cx="32" cy="24" r="5" /><circle cx="32" cy="38" r="5" /><circle cx="32" cy="52" r="5" />
+            <circle class="brand__node" cx="48" cy="38" r="7.5" />
+          </svg>
+          <span>Jornal <em>Presenza</em><span class="dot">.</span></span>
+        </a>
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="Alternar tema claro e escuro">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" /></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 14.6A8.5 8.5 0 0 1 9.4 3.8a8.5 8.5 0 1 0 10.8 10.8Z" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="masthead" aria-label="Editorias">
+        <nav class="niches" id="niches" aria-label="Editorias"></nav>
+        <div class="masthead__meta">
+          <span>Em breve</span>
+          <span id="soon-cadence">&nbsp;</span>
+          <span id="soon-audience">&nbsp;</span>
+        </div>
+      </section>
+
+      <section class="soon">
+        <div class="soon__main">
+          <p class="soon__kicker">Nova editoria do Jornal Presenza</p>
+          <h1 class="soon__title" id="soon-title">&nbsp;</h1>
+          <p class="soon__pitch" id="soon-pitch"></p>
+          <h2 class="section-label soon__label">O que vai ter</h2>
+          <ol class="trends__list soon__sections" id="soon-sections"></ol>
+        </div>
+
+        <aside class="waitlist" aria-labelledby="waitlist-title">
+          <h2 class="waitlist__title" id="waitlist-title">Me avise quando abrir</h2>
+          <p class="waitlist__closed" id="waitlist-closed">
+            A lista de espera abre em breve. Enquanto isso, a <a href="./">edição de IA</a> sai todo dia às 5h.
+          </p>
+          <form class="waitlist__form" id="waitlist-form" hidden>
+            <label class="waitlist__field" for="waitlist-email">Seu e-mail</label>
+            <div class="waitlist__row">
+              <input id="waitlist-email" name="email" type="email" required autocomplete="email" inputmode="email" placeholder="voce@empresa.com" />
+              <button class="waitlist__submit" type="submit">Me avise</button>
+            </div>
+            <label class="waitlist__consent">
+              <input type="checkbox" name="consent" required />
+              <span id="waitlist-consent-text">Quero um e-mail quando esta edição abrir.</span>
+            </label>
+            <!-- Left empty by people; bots that fill every field are ignored by the server. -->
+            <input class="waitlist__trap" name="site" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <p class="waitlist__privacy" id="waitlist-privacy"></p>
+            <p class="waitlist__status" id="waitlist-status" role="status"></p>
+          </form>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer__inner">
+        <p class="footer__about">O Jornal Presenza sai todo dia às 5h, com resumos e o link de cada fonte original.</p>
+        <p class="footer__fine">
+          Resumos gerados por IA podem conter erros. Confira sempre a fonte original.
+          <a href="https://github.com/JuniorPescador/daily-newspaper-ai" target="_blank" rel="noopener noreferrer">Código no GitHub</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

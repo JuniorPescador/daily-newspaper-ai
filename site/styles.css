@@ -405,6 +405,241 @@ input {
   }
 }
 
+/* ---------- Section tabs ---------- */
+
+.niches {
+  min-height: 35px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.niches::-webkit-scrollbar {
+  display: none;
+}
+
+.niches__list {
+  display: flex;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.niches__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0 7px;
+  border-bottom: 2px solid transparent;
+  font: 500 12px/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.niches__tab:hover {
+  color: var(--ink);
+}
+
+.niches__tab[aria-current='page'] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+.niches__soon {
+  padding: 1px 7px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--muted);
+}
+
+/* On phones the four tabs fit in one row without the pills; screen readers still hear "em breve". */
+@media (max-width: 560px) {
+  .niches__list {
+    gap: 22px;
+  }
+
+  .niches__soon {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+/* ---------- "Em breve" page of a section without an edition yet ---------- */
+
+.soon {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 56px;
+  margin-top: 40px;
+  padding-bottom: 72px;
+}
+
+.soon__kicker {
+  margin: 0;
+  font: 500 11px/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.soon__title {
+  margin: 14px 0 0;
+  font: 400 clamp(3rem, 7vw, 6rem) / 0.95 var(--serif);
+  letter-spacing: -0.03em;
+  animation: rise 1s var(--ease-out) both;
+}
+
+.soon__pitch {
+  margin: 24px 0 0;
+  max-width: 58ch;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.soon__main .soon__label {
+  margin-top: 48px;
+}
+
+.waitlist {
+  align-self: start;
+  padding: 26px 28px 28px;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  border-radius: 4px 4px 12px 12px;
+  background: var(--bg-elev);
+}
+
+.waitlist__title {
+  margin: 0;
+  font: 400 1.9rem/1.1 var(--serif);
+}
+
+.waitlist__closed {
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.waitlist__closed a {
+  color: var(--accent);
+}
+
+.waitlist__form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.waitlist__field {
+  font: 500 11px/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.waitlist__row {
+  display: flex;
+  gap: 8px;
+}
+
+.waitlist__row input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.waitlist__submit {
+  flex: none;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  /* White on the light accent, near-black on the lighter dark-theme accent: both pass AA. */
+  color: var(--paper-elev);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.waitlist__submit:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.waitlist__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.waitlist__consent input {
+  margin: 3px 0 0;
+  accent-color: var(--accent);
+}
+
+.waitlist__trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.waitlist__privacy {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.waitlist__privacy a {
+  color: inherit;
+}
+
+.waitlist__status {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 14px;
+}
+
+.waitlist__status[data-state='done'] {
+  color: var(--cat-mercado);
+}
+
+.waitlist__status[data-state='error'] {
+  color: var(--accent);
+}
+
+@media (max-width: 860px) {
+  .soon {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+}
+
 /* ---------- Archive banner ---------- */
 
 .archive-banner {

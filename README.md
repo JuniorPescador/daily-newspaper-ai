@@ -29,6 +29,12 @@ A página é estática, sem etapa de build: `site/index.html`, `site/styles.css`
 
 O Claude escolhe os itens e escreve uma linha em PT-BR sobre cada um, numa chamada separada e com esforço baixo. Sem a chave da API, entram os primeiros de cada lista sem comentário, e os posts vêm só das contas escolhidas. As contas, os feeds e os limites ficam em `trending.json`. Se a coleta falhar, a edição sai sem a seção.
 
+**Abas por editoria.** Abaixo do topo ficam as abas IA, Marketing, Imóveis e UX. Só a de IA tem edição. As outras abrem uma página "em breve" em `/marketing`, `/imoveis` e `/ux`, que diz o que a edição vai trazer, com que frequência e para quem. Elas servem para medir o interesse antes de construir cada edição. A lista e os textos ficam em `site/niches.js`, e a página em `site/soon.html` e `site/soon.js`.
+
+- **Visitas:** o servidor conta quantas vezes cada aba foi aberta por dia, sem guardar IP nem usar cookies, e ignora robôs. Os números ficam em `private/visits.json`, dentro da pasta de dados.
+- **Me avise:** cada página "em breve" tem uma lista de espera, com e-mail, consentimento e aviso de privacidade. Os cadastros ficam em `private/waitlist.jsonl`. A lista só abre quando `PRIVACY_CONTACT` em `site/niches.js` tiver um e-mail de contato, exigido pela LGPD para quem quiser sair da lista. Enquanto ele for `null`, a página diz que a lista abre em breve e o servidor recusa cadastros.
+- **Privacidade:** a pasta `private/` nunca é servida em `/data/`.
+
 ## Rodar localmente
 
 ```bash
@@ -37,6 +43,7 @@ pnpm edition          # gera data/latest.json (usa a IA se houver chave no .env)
 pnpm edition --no-ai  # força a edição automática
 pnpm dev              # só a página, em http://localhost:4321
 pnpm start            # página + edição diária às 05:00, como no Railway (porta 8080)
+pnpm waitlist         # visitas, e-mails e conversão de cada aba (--csv exporta os e-mails)
 pnpm test
 ```
 
@@ -46,7 +53,7 @@ Para usar a IA localmente, crie um `.env` a partir do `.env.example`.
 
 O serviço `web` do projeto **daily-newspaper-ai** roda `node scripts/start.mjs` (definido em `.railway/railway.ts`). Ele faz três coisas:
 
-1. Serve `site/` e as edições (`/data/`), com checagem de saúde em `/healthz`.
+1. Serve `site/` e as edições (`/data/`), com checagem de saúde em `/healthz`. Também serve as páginas "em breve" das abas, conta as visitas e recebe a lista de espera em `POST /api/waitlist`.
 2. Gera a edição todo dia às 05:00 de Brasília. O horário fica em `src/time.mjs`.
 3. Ao iniciar, gera a edição do dia só se o horário das 05:00 já passou e ela ainda não saiu (por exemplo, se o serviço estava fora do ar).
 
@@ -62,6 +69,8 @@ O serviço `web` do projeto **daily-newspaper-ai** roda `node scripts/start.mjs`
 **Configuração do serviço.** Comando de início, checagem de saúde, política de reinício, volume e variáveis ficam em `.railway/railway.ts`. O Railway não lê esse arquivo no deploy. Depois de mudar, rode `railway config plan` para ver o que muda e `railway config apply` para aplicar. O que sair do arquivo é apagado no `apply`. As variáveis aparecem como `preserve()`: o valor fica guardado no Railway, fora do git.
 
 **Gerar uma edição fora do horário.** Abra um terminal no serviço com `railway ssh` e rode `node scripts/edition.mjs`.
+
+**Ver o interesse nas abas.** No mesmo terminal (`railway ssh`), rode `node scripts/waitlist.mjs`. Ele mostra as visitas dos últimos 7 dias e do total, os e-mails e a conversão de cada aba. Com `--csv`, lista os e-mails para levar a uma ferramenta de newsletter.
 
 ## Custo estimado da IA
 

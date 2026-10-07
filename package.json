@@ -12,7 +12,8 @@
     "start": "node scripts/start.mjs",
     "edition": "node scripts/edition.mjs",
     "dev": "node scripts/serve.mjs",
-    "test": "node --test 'test/*.test.mjs'"
+    "test": "node --test 'test/*.test.mjs'",
+    "waitlist": "node scripts/waitlist.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
