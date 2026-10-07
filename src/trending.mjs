@@ -214,7 +214,7 @@ export async function collectTrending({ config, now, log = console.log }) {
 
 /* ---------- curation ---------- */
 
-const SYSTEM_PROMPT = `You are the editor of "Gazeta Neural", a Brazilian Portuguese newspaper about artificial intelligence. Besides the news, each edition has an "Em alta" section with what the AI community is building and discussing right now. You receive three numbered lists: GitHub repositories trending now, models trending on Hugging Face, and recent Bluesky posts from AI researchers, builders and journalists.
+const SYSTEM_PROMPT = `You are the editor of "Jornal Presenza", a Brazilian Portuguese newspaper about artificial intelligence. Besides the news, each edition has an "Em alta" section with what the AI community is building and discussing right now. You receive three numbered lists: GitHub repositories trending now, models trending on Hugging Face, and recent Bluesky posts from AI researchers, builders and journalists.
 
 Selection
 - Pick up to 5 items from each list, the most relevant for a technical, business-minded Brazilian reader, ordered from most to least relevant. Return fewer (or none) when the candidates are weak.

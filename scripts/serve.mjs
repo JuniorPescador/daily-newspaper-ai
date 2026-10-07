@@ -9,4 +9,4 @@ const portFlag = process.argv.indexOf('--port');
 const port = Number(portFlag > -1 ? process.argv[portFlag + 1] : process.env.PORT) || 4321;
 const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(root, 'data');
 
-createSiteServer({ siteDir: path.join(root, 'site'), dataDir }).listen(port, () => console.log(`Gazeta Neural em http://localhost:${port}`));
+createSiteServer({ siteDir: path.join(root, 'site'), dataDir }).listen(port, () => console.log(`Jornal Presenza em http://localhost:${port}`));

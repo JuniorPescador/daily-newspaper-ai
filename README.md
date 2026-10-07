@@ -1,4 +1,4 @@
-# Gazeta Neural
+# Jornal Presenza
 
 Jornal de notícias sobre inteligência artificial, com novidades, mercado e achados. Toda notícia leva o link da fonte original. Sai uma edição por dia, às 5h da manhã, em https://web-production-79215.up.railway.app/.
 
@@ -13,7 +13,7 @@ A página é estática, sem etapa de build: `site/index.html`, `site/styles.css`
 
 **Manchete.** A notícia mais importante abre a página, como a primeira página de um jornal: título grande, imagem, resumo, "por que importa" e fontes, com as tendências ao lado. O nome e o símbolo do jornal ficam no canto superior esquerdo. A imagem é a de compartilhamento (`og:image`) das páginas de origem da notícia, na ordem das fontes: entra a primeira que existir, com crédito e link para a notícia. Logos e imagens genéricas ficam de fora, e sem imagem a manchete sai só com o título. O código fica em `src/lead-image.mjs`.
 
-**Marca.** O símbolo junta a régua de cabeçalho de jornal com três colunas de pontos ligados, como uma rede neural. O ponto laranja é o nó de saída e o ponto final do nome. As fontes são Instrument Serif (títulos), Instrument Sans (texto) e JetBrains Mono (rótulos).
+**Marca.** O símbolo junta a régua de cabeçalho de jornal com três colunas de pontos ligados, como uma rede neural. O ponto em rosa queimado (`#B5545E`, um tom mais claro no tema escuro) é o nó de saída e o ponto final do nome. As fontes são Instrument Serif (títulos), Instrument Sans (texto) e JetBrains Mono (rótulos).
 
 **Efeitos.** Atrás da manchete, uma rede neural em 3D não para de se mexer: os neurônios vagam devagar e se ligam ao acaso, como sinapses, que nascem, duram alguns segundos e se desfazem. As ligações da frente são mais grossas e fortes, as do fundo mais finas e apagadas, e a rede balança devagar (e com o mouse), então a frente passa por cima do fundo. Sinais correm pelas ligações e acendem os neurônios, e passar o mouse perto de um faz ele disparar. A rede assume a cor da IA escolhida. Os cards inclinam com o mouse. O "Mapa do dia" é a edição como um cérebro em 3D: centenas de pontos formam a superfície, ligados numa malha por onde correm impulsos. Cada notícia é um neurônio aceso na região da sua seção (Novidades na frente, Mercado em cima, Achados atrás), ligado às IAs que cita, que ficam no centro. Partículas ao redor se ligam ao cérebro quando chegam perto. No tema escuro ele brilha em neon; no claro, vira um traço nítido. Ao filtrar por uma IA, a logo dela aparece em 3D no fundo. O código fica em `site/fx/`. O mapa e a logo usam Three.js, carregado do jsDelivr só quando a página precisa. Tudo desliga para quem ativou "reduzir movimento" no sistema.
 

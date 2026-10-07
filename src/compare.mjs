@@ -11,7 +11,7 @@ const MAX_CONTINUATIONS = 3;
 const UNITS = ['%', 'usd', 'tokens', ''];
 const BETTER = ['higher', 'lower'];
 
-const SYSTEM_PROMPT = `You research AI model launches for "Gazeta Neural", a Brazilian Portuguese newspaper about artificial intelligence. You receive a story about a newly released model. Find the maker's official announcement (or model card), read it, and report how the new model compares with the rivals that page compares it against.
+const SYSTEM_PROMPT = `You research AI model launches for "Jornal Presenza", a Brazilian Portuguese newspaper about artificial intelligence. You receive a story about a newly released model. Find the maker's official announcement (or model card), read it, and report how the new model compares with the rivals that page compares it against.
 
 Research
 - Start with web_fetch on the story's links. If they are news articles, use web_search to find the maker's own announcement, model card or docs, and fetch it.
