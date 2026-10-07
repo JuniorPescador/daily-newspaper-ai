@@ -37,13 +37,13 @@ function sourcesOf(candidate) {
  * Turns raw curation output (Claude or fallback) into stories, trusting nothing:
  * unknown ids are dropped, each candidate is used once, and every link comes from the feeds.
  */
-export function buildStories(raw, candidates, previousUrls = new Set()) {
+export function buildStories(raw, candidates, previousUrls = new Set(), categories = CATEGORIES) {
   const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]));
   const used = new Set();
   const stories = [];
 
   for (const story of raw?.stories ?? []) {
-    if (!CATEGORIES.includes(story?.category)) continue;
+    if (!categories.includes(story?.category)) continue;
     const title = clean(story.title, 160);
     if (!title) continue;
 
@@ -116,8 +116,9 @@ export function buildHighlights(raw, stories, candidates) {
     .map((story) => ({ text: clean(story.title, 100), storyId: story.id }));
 }
 
-export function assembleEdition({ raw, candidates, now, previousUrls, lastNumber = 0, lastId = null, curation, report }) {
-  const stories = buildStories(raw, candidates, previousUrls);
+/** `categories`: the section's category keys (the AI edition's by default). */
+export function assembleEdition({ raw, candidates, now, previousUrls, lastNumber = 0, lastId = null, curation, report, categories = CATEGORIES }) {
+  const stories = buildStories(raw, candidates, previousUrls, categories);
   if (stories.length < MIN_STORIES) {
     throw new Error(`only ${stories.length} valid stories after validation (minimum ${MIN_STORIES})`);
   }
@@ -148,7 +149,7 @@ export function assembleEdition({ raw, candidates, now, previousUrls, lastNumber
       sourcesOk: report.filter((entry) => entry.ok).length,
       failed: report.filter((entry) => !entry.ok).map((entry) => entry.name),
       candidates: candidates.length,
-      list: report.map(({ name, ok, count }) => ({ name, ok, count })),
+      list: report.map(({ name, ok, count, available }) => ({ name, ok, count, available })),
     },
   };
 }

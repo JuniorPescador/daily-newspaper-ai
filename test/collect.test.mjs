@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { dedupe, interleave, parseFeed, parseHfPapers, selectFromSource } from '../src/collect.mjs';
+import { dedupe, feedPageUrl, interleave, parseFeed, parseFeedDate, parseHfPapers, selectFromSource } from '../src/collect.mjs';
 
 const RSS = `<?xml version="1.0"?>
 <rss version="2.0"><channel>
@@ -95,4 +95,26 @@ test('interleave alternates sources, heaviest first', () => {
     (entry) => `${entry.sourceId}${entry.n}`,
   );
   assert.deepEqual(order, ['b1', 'c1', 'a1', 'b2', 'a2']);
+});
+
+test('parseFeedDate reads RFC 822 dates written in Portuguese', () => {
+  assert.equal(parseFeedDate('ter, 06 out 2026 17:16:59 -0300').toISOString(), '2026-10-06T20:16:59.000Z');
+  assert.equal(parseFeedDate('sáb, 05 dez 2026 08:00:00 +0000').toISOString(), '2026-12-05T08:00:00.000Z');
+  assert.equal(parseFeedDate('Wed, 07 Oct 2026 07:50:32 +0200').toISOString(), '2026-10-07T05:50:32.000Z');
+  assert.equal(parseFeedDate('2026-09-25T09:00:00Z').toISOString(), '2026-09-25T09:00:00.000Z');
+  assert.equal(parseFeedDate('sem data'), null);
+  assert.equal(parseFeedDate(''), null);
+});
+
+test('feedPageUrl asks WordPress for the next pages of a feed', () => {
+  assert.equal(feedPageUrl('https://propmark.com.br/feed/', 1), 'https://propmark.com.br/feed/');
+  assert.equal(feedPageUrl('https://propmark.com.br/feed/', 2), 'https://propmark.com.br/feed/?paged=2');
+  assert.equal(feedPageUrl('https://example.com/feed?cat=3', 3), 'https://example.com/feed?cat=3&paged=3');
+});
+
+test('selectFromSource drops a post repeated across feed pages', () => {
+  const now = new Date('2026-10-07T12:00:00Z');
+  const item = { title: 'Campanha nova', url: 'https://example.com/campanha', publishedAt: new Date('2026-10-07T10:00:00Z'), snippet: '' };
+  const picked = selectFromSource([item, { ...item }], { id: 'x', name: 'X' }, now, 36);
+  assert.equal(picked.length, 1);
 });
