@@ -1,8 +1,9 @@
 ---
 uid: task-001
-status: open
+status: done
 priority: normal
 scheduled: 2026-10-06
+completed: 2026-10-07
 timeEstimate: 120
 pomodoros: 0
 createdBy: JuniorPescador
@@ -23,7 +24,8 @@ Mirror of GitHub issue JuniorPescador/daily-newspaper-ai#52. Market research for
 - [x] Research per niche (sources verified)
 - [x] Product shape and brand architecture
 - [x] Report shared and linked on #52
-- [ ] Operator picks approach; implementation issue(s) opened
+- [x] Operator picks approach; implementation issue(s) opened
 
 ## Progress
 - 2026-10-06: report at https://claude.ai/code/artifact/9103fcb3-3c0f-498a-99b9-975349d4a6a3, summary on #52. Recommends Marketing daily → real estate daily → UX weekly, master brand with tabs, validation via waitlist + shadow mode.
+- 2026-10-07: operator approved starting with Marketing (em breve tabs + waitlist first) and a terminal review of the shadow edition. Implementation: #56 (PR #58) and #57 (PR #59).
