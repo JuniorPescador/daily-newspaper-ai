@@ -26,6 +26,10 @@ export default defineRailway(() => {
     },
     replicas: { sfo: 1 },
     volumeMounts: { "/data": webVolume },
+    // Public address. Railway configuration cannot register a custom domain: it was created with
+    // `railway domain jornal.presenzasolucoes.com`, and the DNS lives in Cloudflare (issue #61).
+    // The Railway service domain (web-production-79215.up.railway.app) stays unmanaged and keeps working.
+    domains: ["jornal.presenzasolucoes.com"],
     env: {
       ANTHROPIC_API_KEY: preserve(),
       DATA_DIR: preserve(),
