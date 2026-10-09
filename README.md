@@ -1,6 +1,6 @@
 # Jornal Presenza
 
-Jornal de notícias sobre inteligência artificial, com novidades, mercado e achados. Toda notícia leva o link da fonte original. Sai uma edição por dia, às 5h da manhã, em https://web-production-79215.up.railway.app/.
+Jornal de notícias sobre inteligência artificial, com novidades, mercado e achados. Toda notícia leva o link da fonte original. Sai uma edição por dia, às 5h da manhã, em https://jornal.presenzasolucoes.com/.
 
 ## Como funciona
 
@@ -71,6 +71,8 @@ O serviço `web` do projeto **daily-newspaper-ai** roda `node scripts/start.mjs`
 | `PORT` | Definida pelo Railway. |
 
 **Deploy.** Com o serviço ligado ao repositório no GitHub (Settings → Source), todo merge na `main` publica sozinho. Sem essa ligação, publique com `railway up`.
+
+**Endereço.** O site responde em `jornal.presenzasolucoes.com` e também no endereço do Railway, `web-production-79215.up.railway.app`. O DNS de `presenzasolucoes.com` fica no Cloudflare, com um CNAME `jornal` apontando para `v8v3ym6q.up.railway.app` e um TXT `_railway-verify.jornal` que comprova ao Railway que o domínio é nosso. O domínio foi criado com `railway domain jornal.presenzasolucoes.com`, porque o `.railway/railway.ts` não consegue registrar domínio próprio, só declarar um que já existe. `railway domain status 16263fc7-c44a-468e-aa18-333765800f39` mostra se o DNS e o certificado estão ok.
 
 **Configuração do serviço.** Comando de início, checagem de saúde, política de reinício, volume e variáveis ficam em `.railway/railway.ts`. O Railway não lê esse arquivo no deploy. Depois de mudar, rode `railway config plan` para ver o que muda e `railway config apply` para aplicar. O que sair do arquivo é apagado no `apply`. As variáveis aparecem como `preserve()`: o valor fica guardado no Railway, fora do git.
 
