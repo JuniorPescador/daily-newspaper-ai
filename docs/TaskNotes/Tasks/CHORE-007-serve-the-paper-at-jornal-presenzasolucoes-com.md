@@ -1,8 +1,9 @@
 ---
 uid: chore-007
-status: open
+status: done
 priority: normal
 scheduled: 2026-10-09
+completed: 2026-10-09
 timeEstimate: 45
 pomodoros: 0
 createdBy: JuniorPescador
@@ -23,9 +24,9 @@ Mirror of GitHub issue JuniorPescador/daily-newspaper-ai#61. Declare the custom 
 ## Checklist
 - [x] railway config plan clean with the domain declared
 - [x] Domain created with `railway domain jornal.presenzasolucoes.com` (id 16263fc7); IaC refuses to register custom domains, so no config apply is needed
-- [ ] PR with Closes #61 merged
-- [ ] DNS records in Cloudflare (operator)
-- [ ] https://jornal.presenzasolucoes.com answers with a valid certificate
+- [x] PR with Closes #61 merged
+- [x] DNS records in Cloudflare (created by Claude in the operator's Chrome on 2026-10-09, with the operator's OK)
+- [x] https://jornal.presenzasolucoes.com answers with a valid certificate (Let's Encrypt, until 2027-01-07); /, /marketing, /imoveis, /ux, /healthz 200; /data/private 404; Railway URL still 200
 - [x] README with the new address
 
 ## DNS (Cloudflare, operator)
