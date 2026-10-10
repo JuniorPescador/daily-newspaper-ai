@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { canonicalUrl, isAiRelated, safeUrl, stripHtml, titleSimilarity, truncate } from './text.mjs';
 
-const USER_AGENT = 'daily-newspaper-ai/0.1 (+https://github.com/JuniorPescador/daily-newspaper-ai)';
+const USER_AGENT = 'daily-newspaper-ai/0.1 (+https://github.com/presenzasolucoes/daily-newspaper-ai)';
 const FETCH_TIMEOUT_MS = 15_000;
 const SNIPPET_MAX = 320;
 const DUPLICATE_TITLE_SIMILARITY = 0.8;
